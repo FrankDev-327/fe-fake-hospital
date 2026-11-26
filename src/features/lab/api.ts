@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { BadgeTone } from '@/components/ui';
 import { api } from '@/lib/api';
+import { t } from '@/i18n';
 
 /** A test from the catalog (LOINC code, unit, normal and critical limits) */
 export interface LabTest {
@@ -66,20 +67,60 @@ export type WorklistStatus = WorklistItem['status'];
 export const FLAG: Record<LabFlag, { label: string; tone: BadgeTone } | null> =
   {
     normal: null,
-    low: { label: 'Low', tone: 'amber' },
-    high: { label: 'High', tone: 'amber' },
-    critical_low: { label: 'Critical low', tone: 'red' },
-    critical_high: { label: 'Critical high', tone: 'red' },
+    low: {
+      get label() {
+        return t('lab.fLow');
+      },
+      tone: 'amber',
+    },
+    high: {
+      get label() {
+        return t('lab.fHigh');
+      },
+      tone: 'amber',
+    },
+    critical_low: {
+      get label() {
+        return t('lab.fCritLow');
+      },
+      tone: 'red',
+    },
+    critical_high: {
+      get label() {
+        return t('lab.fCritHigh');
+      },
+      tone: 'red',
+    },
   };
 
 export const ORDER_STATUS: Record<
   LabOrderStatus,
   { label: string; tone: BadgeTone }
 > = {
-  ordered: { label: 'To collect', tone: 'blue' },
-  collected: { label: 'At the lab', tone: 'teal' },
-  resulted: { label: 'Results ready', tone: 'green' },
-  cancelled: { label: 'Cancelled', tone: 'gray' },
+  ordered: {
+    get label() {
+      return t('lab.toCollect');
+    },
+    tone: 'blue',
+  },
+  collected: {
+    get label() {
+      return t('lab.sAtLab');
+    },
+    tone: 'teal',
+  },
+  resulted: {
+    get label() {
+      return t('lab.sReady');
+    },
+    tone: 'green',
+  },
+  cancelled: {
+    get label() {
+      return t('lab.sCancelled');
+    },
+    tone: 'gray',
+  },
 };
 
 /** Same rule as the backend (lab-flags.ts), used to preview the flag while typing */

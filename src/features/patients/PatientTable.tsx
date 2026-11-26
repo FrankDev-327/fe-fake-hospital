@@ -2,16 +2,17 @@ import { Link } from '@tanstack/react-router';
 import { Table, Td, Th } from '@/components/ui';
 import { age, formatDate, patientName, SEX_LABEL } from '@/lib/format';
 import type { PatientSummary } from './api';
+import { t } from '@/i18n';
 
 export function PatientTable({ patients }: { patients: PatientSummary[] }) {
   return (
     <Table>
       <thead>
         <tr>
-          <Th>Name</Th>
+          <Th>{t('patients.colName')}</Th>
           <Th>MRN</Th>
-          <Th>Age / sex</Th>
-          <Th>Date of birth</Th>
+          <Th>{t('patients.colAgeSex')}</Th>
+          <Th>{t('patients.dob')}</Th>
         </tr>
       </thead>
       <tbody>

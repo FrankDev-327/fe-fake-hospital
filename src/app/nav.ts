@@ -8,6 +8,7 @@ export interface NavItem {
   to:
     | '/patients'
     | '/ward'
+    | '/maternity'
     | '/medication'
     | '/lab'
     | '/appointments'
@@ -34,6 +35,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description: 'Beds, admissions, transfers and discharges',
     roles: ['doctor', 'nurse'],
     slice: 7,
+  },
+  {
+    to: '/maternity',
+    label: 'Maternity',
+    description: 'Labor, births and newborns',
+    roles: ['doctor', 'nurse'],
+    slice: 12,
   },
   {
     to: '/medication',

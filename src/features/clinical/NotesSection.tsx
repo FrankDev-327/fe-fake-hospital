@@ -18,15 +18,27 @@ import {
   useNotes,
 } from './api';
 import type { Note, NoteType } from './api';
+import { t } from '@/i18n';
 
 const NOTE_ERRORS = {
-  stale_version: 'This draft was changed in another window. Reload the page.',
-  encounter_closed: 'The visit is closed: new notes are not possible.',
-  note_is_signed: 'The note is already signed. Amend it instead.',
-  amendment_already_exists:
-    'This note already has a correction. Amend the correction instead.',
-  only_the_author_can_void: 'Only the author can mark a note as an error.',
-  original_not_signed: 'The original note changed. Reload the page.',
+  get stale_version() {
+    return t('clinical.nStale');
+  },
+  get encounter_closed() {
+    return t('clinical.nClosed');
+  },
+  get note_is_signed() {
+    return t('clinical.nSigned');
+  },
+  get amendment_already_exists() {
+    return t('clinical.nAmendExists');
+  },
+  get only_the_author_can_void() {
+    return t('clinical.nOnlyAuthor');
+  },
+  get original_not_signed() {
+    return t('clinical.nOrigChanged');
+  },
 };
 
 interface Props {
@@ -51,12 +63,18 @@ export function NotesSection({ patientId, encounterId, open, me }: Props) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Notes</h2>
+        <h2 className="text-lg font-semibold">{t('clinical.notes')}</h2>
         {open && myTypes.length > 0 && !newType && (
           <div className="flex gap-2">
-            {myTypes.map((t) => (
-              <Button key={t} variant="secondary" onClick={() => setNewType(t)}>
-                New {NOTE_TYPE_LABEL[t].toLowerCase()}
+            {myTypes.map((type) => (
+              <Button
+                key={type}
+                variant="secondary"
+                onClick={() => setNewType(type)}
+              >
+                {t('clinical.newNote', {
+                  type: NOTE_TYPE_LABEL[type].toLowerCase(),
+                })}
               </Button>
             ))}
           </div>
@@ -74,7 +92,7 @@ export function NotesSection({ patientId, encounterId, open, me }: Props) {
       <QueryState
         query={notes}
         isEmpty={(n) => n.length === 0 && !newType}
-        empty="No notes yet."
+        empty={t('clinical.noNotes')}
       >
         {(items) => (
           <ul className="space-y-3">
@@ -131,17 +149,17 @@ function NewNote({
               { type, body },
               {
                 onSuccess: () => {
-                  toast('Draft saved. Sign it when it is complete.');
+                  toast(t('clinical.draftSavedSign'));
                   onDone();
                 },
               },
             )
           }
         >
-          Save draft
+          {t('clinical.saveDraft')}
         </Button>
         <Button variant="ghost" onClick={onDone}>
-          Cancel
+          {t('common.cancel')}
         </Button>
       </div>
     </div>
@@ -197,9 +215,11 @@ function NoteItem({
       <NoteHeader note={note} />
       {note.amendsId && (
         <p className="mb-2 text-xs text-slate-500">
-          Correction
+          {t('clinical.correction')}
           {original?.signedAt
-            ? ` of the note from ${formatDateTime(original.signedAt)}`
+            ? t('clinical.correctionOf', {
+                at: formatDateTime(original.signedAt),
+              })
             : ''}
           : <em>{note.amendReason}</em>
         </p>
@@ -210,13 +230,11 @@ function NoteItem({
         {note.body}
       </p>
       {note.status === 'amended' && (
-        <p className="mt-2 text-xs text-slate-500">
-          Replaced by a correction (see above).
-        </p>
+        <p className="mt-2 text-xs text-slate-500">{t('clinical.replaced')}</p>
       )}
       {note.status === 'entered_in_error' && (
         <p className="mt-2 text-xs text-red-700">
-          Marked as error: {note.errorReason}
+          {t('clinical.markedError', { reason: note.errorReason })}
         </p>
       )}
 
@@ -228,7 +246,7 @@ function NoteItem({
               className="py-1"
               onClick={() => setDialog('amend')}
             >
-              Amend
+              {t('clinical.amend')}
             </Button>
           )}
           {mine && (
@@ -237,7 +255,7 @@ function NoteItem({
               className="py-1 text-red-700"
               onClick={() => setDialog('error')}
             >
-              Mark as error
+              {t('clinical.markError')}
             </Button>
           )}
         </div>
@@ -264,10 +282,30 @@ const STATUS_BADGE: Record<
   Note['status'],
   { label: string; tone: 'gray' | 'amber' | 'green' | 'red' }
 > = {
-  draft: { label: 'Draft', tone: 'amber' },
-  signed: { label: 'Signed', tone: 'green' },
-  amended: { label: 'Amended', tone: 'gray' },
-  entered_in_error: { label: 'Error', tone: 'red' },
+  draft: {
+    get label() {
+      return t('clinical.stDraft');
+    },
+    tone: 'amber',
+  },
+  signed: {
+    get label() {
+      return t('clinical.stSigned');
+    },
+    tone: 'green',
+  },
+  amended: {
+    get label() {
+      return t('clinical.stAmended');
+    },
+    tone: 'gray',
+  },
+  entered_in_error: {
+    get label() {
+      return t('clinical.stError');
+    },
+    tone: 'red',
+  },
 };
 
 function NoteHeader({ note }: { note: Note }) {
@@ -281,8 +319,8 @@ function NoteHeader({ note }: { note: Note }) {
         <StaffName id={note.authorId} />
         {' · '}
         {note.signedAt
-          ? `signed ${formatDateTime(note.signedAt)}`
-          : `started ${formatDateTime(note.createdAt)}`}
+          ? t('clinical.signedAt', { at: formatDateTime(note.signedAt) })
+          : t('clinical.startedAt', { at: formatDateTime(note.createdAt) })}
       </span>
     </div>
   );
@@ -314,7 +352,7 @@ function DraftEditor({
       <NoteHeader note={note} />
       {note.amendsId && (
         <p className="mb-2 text-xs text-slate-600">
-          Correction of a signed note
+          {t('clinical.correctionOfSigned')}
           {original?.signedAt
             ? ` from ${formatDateTime(original.signedAt)}`
             : ''}
@@ -323,7 +361,7 @@ function DraftEditor({
         </p>
       )}
       <TextAreaField
-        label="Text"
+        label={t('clinical.text')}
         rows={8}
         value={body}
         onChange={(e) => setBody(e.target.value)}
@@ -336,9 +374,7 @@ function DraftEditor({
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           disabled={busy || isEmptyNote(body)}
-          title={
-            isEmptyNote(body) ? 'Write something before signing' : undefined
-          }
+          title={isEmptyNote(body) ? t('clinical.writeFirst') : undefined}
           onClick={async () => {
             // sign exactly what's on screen: save first, and stop if saving failed
             if (
@@ -350,23 +386,23 @@ function DraftEditor({
             )
               return;
             actions.sign.mutate(note.id, {
-              onSuccess: () => toast('Note signed'),
+              onSuccess: () => toast(t('clinical.noteSigned')),
             });
           }}
         >
-          Sign
+          {t('clinical.sign')}
         </Button>
         <Button
           variant="secondary"
           disabled={busy || !dirty || !body.trim()}
           onClick={() =>
             save().then(
-              () => toast('Draft saved'),
+              () => toast(t('clinical.draftSaved')),
               () => null,
             )
           }
         >
-          Save draft
+          {t('clinical.saveDraft')}
         </Button>
         <Button
           variant="ghost"
@@ -374,16 +410,16 @@ function DraftEditor({
           disabled={busy}
           onClick={onDiscard}
         >
-          Discard
+          {t('clinical.discard')}
         </Button>
         {dirty && (
           <span className="self-center text-xs text-amber-700">
-            Unsaved changes
+            {t('clinical.unsaved')}
           </span>
         )}
         {isEmptyNote(body) && (
           <span className="self-center text-xs text-slate-500">
-            Write something under the headings before signing
+            {t('clinical.writeUnder')}
           </span>
         )}
       </div>
@@ -402,16 +438,14 @@ function ConfirmDiscard({
 }) {
   const toast = useToast();
   return (
-    <Modal title="Discard this draft?" onClose={onClose}>
-      <p className="mb-4 text-sm text-slate-600">
-        The text will be deleted. This can't be undone.
-      </p>
+    <Modal title={t('clinical.discardQ')} onClose={onClose}>
+      <p className="mb-4 text-sm text-slate-600">{t('clinical.discardText')}</p>
       {actions.discard.error && (
         <Alert>{errorMessage(actions.discard.error, NOTE_ERRORS)}</Alert>
       )}
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onClose}>
-          Keep it
+          {t('clinical.keep')}
         </Button>
         <Button
           className="bg-red-700 hover:bg-red-800"
@@ -419,13 +453,13 @@ function ConfirmDiscard({
           onClick={() =>
             actions.discard.mutate(note.id, {
               onSuccess: () => {
-                toast('Draft discarded');
+                toast(t('clinical.draftDiscarded'));
                 onClose();
               },
             })
           }
         >
-          Discard
+          {t('clinical.discard')}
         </Button>
       </div>
     </Modal>
@@ -447,28 +481,25 @@ function AmendDialog({
   const toast = useToast();
   const valid = body.trim().length > 0 && reason.trim().length >= 3;
   return (
-    <Modal title="Amend note" onClose={onClose}>
+    <Modal title={t('clinical.amendTitle')} onClose={onClose}>
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">
-          The signed note stays in the record. Your correction is saved as a
-          draft; when you sign it, it replaces the original.
-        </p>
+        <p className="text-sm text-slate-600">{t('clinical.amendText')}</p>
         <TextAreaField
-          label="Corrected text"
+          label={t('clinical.correctedText')}
           rows={8}
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
         <SelectField
-          label="Reason"
+          label={t('common.reason')}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           options={[
-            { value: '', label: 'Choose…' },
-            { value: 'Typo', label: 'Typo' },
-            { value: 'Missing information', label: 'Missing information' },
-            { value: 'Wrong value', label: 'Wrong value' },
-            { value: 'New information', label: 'New information' },
+            { value: '', label: t('clinical.choose') },
+            { value: 'Typo', label: t('clinical.rTypo') },
+            { value: 'Missing information', label: t('clinical.rMissing') },
+            { value: 'Wrong value', label: t('clinical.rWrong') },
+            { value: 'New information', label: t('clinical.rNew') },
           ]}
         />
         {actions.amend.error && (
@@ -476,7 +507,7 @@ function AmendDialog({
         )}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             disabled={!valid || actions.amend.isPending}
@@ -485,14 +516,14 @@ function AmendDialog({
                 { id: note.id, body, reason },
                 {
                   onSuccess: () => {
-                    toast('Correction saved as draft');
+                    toast(t('clinical.correctionSaved'));
                     onClose();
                   },
                 },
               )
             }
           >
-            Create correction
+            {t('clinical.createCorrection')}
           </Button>
         </div>
       </div>
@@ -512,25 +543,22 @@ function MarkErrorDialog({
   const [reason, setReason] = useState('');
   const toast = useToast();
   return (
-    <Modal title="Mark note as error" onClose={onClose}>
+    <Modal title={t('clinical.markNoteError')} onClose={onClose}>
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">
-          For a note that should not be in this chart (e.g. written for the
-          wrong patient). It stays visible, crossed out, with your reason.
-        </p>
+        <p className="text-sm text-slate-600">{t('clinical.markText')}</p>
         <TextAreaField
-          label="Reason"
+          label={t('common.reason')}
           rows={2}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          hint="At least 3 characters, e.g. Wrong patient"
+          hint={t('clinical.reasonHint')}
         />
         {actions.markError.error && (
           <Alert>{errorMessage(actions.markError.error, NOTE_ERRORS)}</Alert>
         )}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             className="bg-red-700 hover:bg-red-800"
@@ -540,14 +568,14 @@ function MarkErrorDialog({
                 { id: note.id, reason: reason.trim() },
                 {
                   onSuccess: () => {
-                    toast('Note marked as error');
+                    toast(t('clinical.noteMarked'));
                     onClose();
                   },
                 },
               )
             }
           >
-            Mark as error
+            {t('clinical.markError')}
           </Button>
         </div>
       </div>

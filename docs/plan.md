@@ -116,6 +116,7 @@ The fake backend has these already, marked `NOT IN THE BACKEND YET` in `src/mock
 1. **Doctors directory for the front desk**: `GET /api/identity/staff/doctors` (cards only: id, name, license). The receptionist must pick a doctor to see/book appointments, but `GET /staff` is admin only.
 2. **Patient names in a doctor's schedule**: `GET /api/admissions/doctors/:id/appointments` returns only `patientId`. The front desk would need one request per patient, and a doctor can't look up patients who aren't assigned to them yet (first visits), so the schedule should include `patient: { mrn, firstName, lastName }`.
 3. **Lab test catalog for the UI**: `GET /api/clinical/lab-tests` (code, name, unit, ref and critical limits). The order form, the worklist names and the live flag preview while typing results need it.
+4. **Nurses directory for the birth form**: `GET /api/identity/staff/nurses` (cards only), for doctors and nurses. The "who helped" list needs the nurses' ids, and `GET /staff` is admin only. (Same idea as gap 1: maybe one `GET /staff/directory?role=` for both.)
 
 ## 8. Progress
 
@@ -133,6 +134,30 @@ The fake backend has these already, marked `NOT IN THE BACKEND YET` in `src/mock
 - **Slice 4 done (2026-11-20, fake backend)**: doctor prescribes from the catalog (dose/unit/route/interval or as needed); the backend's safety checks are handled: `prescription_blocked` (allergy match by ATC prefix) -> written override reason, `warnings_need_acknowledgement` (duplicate therapy, text-only allergies) -> "I have checked these"; stop (reason), mark as error (prescriber, no doses given). Nurse records doses given/skipped/refused (idempotency key per dialog so a double tap records once; `dose_too_soon` -> confirm early + note; different amount or skipped -> note required); dose history; Record button in the medication round.
 - **Slice 5 done**: record a vitals round (BP, pulse, temperature, SpO2, breathing rate, sugar, pain, weight, height; backend plausibility ranges checked while typing), tiles with the latest values, Recharts line chart per sign (BP = systolic + diastolic, validated colors), readings table with "mark as error".
 - **Slice 6 done**: LOINC test catalog (same codes/ranges as the backend), doctor orders tests (routine/urgent) from the visit or chart; nurse "Sample taken" on the ward; lab tech collects and enters results with a live High/Low/Critical preview; results with flags and reference ranges on the chart; unacknowledged critical results stay red with a banner until a doctor acknowledges. Not done yet: correcting a result, importing external results (comes with documents, slice 8).
+- **Births done (2026-11-26, fake backend)**, for the backend's slice 12: new "Maternity" menu (doctor, nurse) with tabs in labor / delivered / cancelled; "Start labor" for my patients lying in a delivery ward bed; delivery page with Register birth (sex, time of birth, free cot in maternity/nursery, baby's primary doctor, who helped), the saga's 3 steps shown live (polls every second while "registering"), link to the baby's chart when ready, Retry if failed, False alarm (cancel with reason) while in labor, delivery team card. Newborns have no first name: shown as "Horvat, newborn" + "No name yet" badge; chart shows exact birth time, a "Mother and baby" card (both ways), Apgar 1/5/10 in vitals (record dialog shows them only for newborns). Fake data: wards Delivery/Maternity/Nursery (ward kind), Lucija Pavlović in labor in D1, Marija Horvat on maternity with her baby girl (born 20 h ago, Apgar 8/9/10) in the nursery. Fake access: baby's primary doctor + the delivery team for 60 min (like the backend). Not done: live SSE (delivery.changed), moving mother/baby between rooms (comes with slice 7 transfer).
 - Fake backend now has a small database (`src/mocks/db.ts`): changes are saved in localStorage and survive reloads; "Reset demo data" on the login page goes back to the seed. Tests reset it before each test.
 - Slice 0 done: Vite + React 19 + TS 6 + Tailwind 4 + ESLint + Prettier + Vitest.
 - Slice 1 written: login page (React Hook Form + Zod), API client (access token in memory, single-flight refresh with Web Locks, retry once on 401), AuthProvider (restore session on reload, idle logout 15 min, query cache cleared on logout), TanStack Router with login guard + role guard per section, sidebar per role, placeholder pages. Tests (83 now, incl. one per role page and full register/edit/visit/note/diagnosis flows): api client (one refresh for parallel 401s, etc.), safe redirect, full login/session/role flows on the fake backend; console.error fails a test. Checked in headless Chromium. NOT yet tried against the real backend (that's for the end).
+
+## 9. To do (everything left, in order)
+
+Frontend slices (on the fake backend first):
+- [ ] **Slice 7**: admit a patient to a bed, transfer, discharge (with retry/abort when the discharge gets stuck); live ward board with SSE (`EventSource`) so it updates without refreshing
+- [ ] **Slice 8**: documents: upload (presigned S3 URL, progress bar), document list, OCR findings review (accept/reject), import external lab results, print PDFs (prescription, lab report, discharge letter)
+- [ ] **Slice 9**: appointments: doctor's working hours, free slots, book / cancel / no-show / done
+- [ ] **Slice 10**: admin: staff name search, create/deactivate staff, doctor–patient and doctor–nurse assignments, handover, wards/rooms/beds; status page + "service down" banner (degraded mode)
+- [ ] Lab: correct a wrong result (lab tech)
+- [x] Language: every page's texts in `src/i18n/en.json` + `hr.json`, dates and "5 min ago" in the chosen language (backend messages like safety-check warnings stay as the backend sends them)
+
+Then the switch to the real backend:
+- [ ] Commit and push the backend's refresh-cookie change (in `fake-hospital`, still uncommitted)
+- [ ] Add the 3 missing endpoints to the backend (section 7: doctors directory, patient names in schedules, lab test catalog)
+- [ ] Run the backend in Docker (ask first) and the app with `pnpm dev:backend`; fix every difference from the fake
+
+Quality and shipping (slice 11):
+- [ ] Code splitting (load each area's pages on demand): the build is over 500 kB, mostly Recharts
+- [ ] Playwright tests through the real app (login, prescribe, discharge)
+- [ ] Dockerfile (build -> nginx serving the app and proxying `/api`), add it to the backend's docker compose; drop `mockServiceWorker.js` from the production image
+- [ ] README: real-backend instructions and final screenshots
+
+Still open: who types the code from here on (Franjo, me, or a mix).

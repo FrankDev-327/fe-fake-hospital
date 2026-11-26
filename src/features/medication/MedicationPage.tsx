@@ -24,6 +24,7 @@ import {
 } from './api';
 import type { Prescription } from './api';
 import { RecordDoseDialog } from './RecordDoseDialog';
+import { t } from '@/i18n';
 
 export function MedicationPage() {
   const { state } = useAuth();
@@ -59,18 +60,15 @@ function MedicationRound() {
 
   return (
     <>
-      <PageHeader
-        title="Medication round"
-        subtitle="Active prescriptions of your patients"
-      />
+      <PageHeader title={t('med.round')} subtitle={t('med.roundSub')} />
       <Table>
         <thead>
           <tr>
-            <Th>Due</Th>
-            <Th>Patient</Th>
-            <Th>Medication</Th>
-            <Th>Dose</Th>
-            <Th>Last given</Th>
+            <Th>{t('med.due')}</Th>
+            <Th>{t('med.patient')}</Th>
+            <Th>{t('med.medication')}</Th>
+            <Th>{t('med.dose')}</Th>
+            <Th>{t('med.lastGivenCol')}</Th>
             <Th />
           </tr>
         </thead>
@@ -81,10 +79,12 @@ function MedicationRound() {
               <tr key={rx.id}>
                 <Td>
                   {!due ? (
-                    <Badge>As needed</Badge>
+                    <Badge>{t('med.asNeeded')}</Badge>
                   ) : overdue ? (
                     <Badge tone="red">
-                      Overdue {timeAgo(due.toISOString(), now)}
+                      {t('med.overdue', {
+                        ago: timeAgo(due.toISOString(), now),
+                      })}
                     </Badge>
                   ) : (
                     <Badge tone="blue">{dueLabel(due, now)}</Badge>
@@ -114,10 +114,13 @@ function MedicationRound() {
                 <Td>
                   <Button
                     className="py-1"
-                    aria-label={`Record ${rx.medication.name} for ${patientName(patient)}`}
+                    aria-label={t('med.recordFor', {
+                      med: rx.medication.name,
+                      patient: patientName(patient),
+                    })}
                     onClick={() => setRecording({ rx, patient })}
                   >
-                    Record
+                    {t('med.record')}
                   </Button>
                 </Td>
               </tr>
@@ -144,36 +147,33 @@ function DrugCatalog() {
   const results = useMedicationCatalog(q);
   return (
     <>
-      <PageHeader
-        title="Drug catalog"
-        subtitle="Search by name, active ingredient or ATC code"
-      />
+      <PageHeader title={t('med.catalog')} subtitle={t('med.catalogSub')} />
       <input
         type="search"
-        aria-label="Search drugs"
-        placeholder="e.g. paracetamol or N02"
+        aria-label={t('med.searchDrugs')}
+        placeholder={t('med.searchPh')}
         value={text}
         onChange={(e) => setText(e.target.value)}
         autoFocus
         className="mb-4 w-full max-w-md rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-teal-600 focus:ring-2 focus:ring-teal-600/30 focus:outline-none"
       />
       {q.length < 2 ? (
-        <p className="text-sm text-slate-500">Type at least 2 characters.</p>
+        <p className="text-sm text-slate-500">{t('med.min2')}</p>
       ) : (
         <QueryState
           query={results}
           isEmpty={(r) => r.length === 0}
-          empty="Nothing found."
+          empty={t('med.nothing')}
         >
           {(items) => (
             <Table>
               <thead>
                 <tr>
-                  <Th>Name</Th>
-                  <Th>Active ingredient</Th>
+                  <Th>{t('med.name')}</Th>
+                  <Th>{t('med.ingredient')}</Th>
                   <Th>ATC</Th>
-                  <Th>Form</Th>
-                  <Th>Strength</Th>
+                  <Th>{t('med.form')}</Th>
+                  <Th>{t('med.strength')}</Th>
                 </tr>
               </thead>
               <tbody>

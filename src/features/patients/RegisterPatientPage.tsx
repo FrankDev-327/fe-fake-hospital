@@ -5,9 +5,11 @@ import { PageHeader } from '@/components/ui';
 import { useToast } from '@/components/toast-context';
 import { ApiError } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
+import { patientName } from '@/lib/format';
 import { useRegisterPatient } from './api';
 import { toInput } from './patient-form';
 import { PatientForm } from './PatientForm';
+import { t } from '@/i18n';
 
 /** Front desk: register a new patient. */
 export function RegisterPatientPage() {
@@ -23,26 +25,26 @@ export function RegisterPatientPage() {
   return (
     <div className="max-w-3xl">
       <PageHeader
-        title="Register patient"
-        subtitle="Name, date of birth and sex are required"
+        title={t('patients.register')}
+        subtitle={t('patients.registerSub')}
       />
       <div className="mb-4 space-y-2">
         {existing && (
           <Alert>
-            This person is already registered as {existing.mrn}.{' '}
+            {t('patients.alreadyRegistered', { mrn: existing.mrn })}{' '}
             <Link
               to="/patients/$patientId"
               params={{ patientId: existing.id }}
               className="font-medium underline"
             >
-              Open their record
+              {t('patients.openRecord')}
             </Link>
           </Alert>
         )}
         {error && <Alert>{error}</Alert>}
       </div>
       <PatientForm
-        submitLabel="Register"
+        submitLabel={t('patients.registerBtn')}
         onCancel={() => void navigate({ to: '/patients' })}
         onSubmit={async (values) => {
           setExisting(null);
@@ -50,7 +52,10 @@ export function RegisterPatientPage() {
           try {
             const patient = await registerPatient.mutateAsync(toInput(values));
             toast(
-              `Registered ${patient.firstName} ${patient.lastName} (${patient.mrn})`,
+              t('patients.registered', {
+                name: patientName(patient),
+                mrn: patient.mrn,
+              }),
             );
             await navigate({
               to: '/patients/$patientId',

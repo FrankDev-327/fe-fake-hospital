@@ -14,13 +14,21 @@ import {
   useIcd10Search,
 } from './api';
 import type { Diagnosis, DiagnosisStatus, Icd10Code } from './api';
+import { t } from '@/i18n';
 
 const DX_ERRORS = {
-  encounter_closed: 'The visit is closed: add the diagnosis in an open visit.',
-  unknown_icd10_code: 'Unknown ICD-10 code.',
-  diagnosis_already_revised:
-    'Someone already changed this diagnosis. Reload the page.',
-  diagnosis_entered_in_error: 'This diagnosis was marked as an error.',
+  get encounter_closed() {
+    return t('clinical.dxClosed');
+  },
+  get unknown_icd10_code() {
+    return t('clinical.dxUnknown');
+  },
+  get diagnosis_already_revised() {
+    return t('clinical.dxRevised');
+  },
+  get diagnosis_entered_in_error() {
+    return t('clinical.dxWasError');
+  },
 };
 
 /** Next steps a doctor can take on a diagnosis (each one is a new version, history is kept) */
@@ -29,14 +37,41 @@ const NEXT: Record<
   { status: DiagnosisStatus; label: string }[]
 > = {
   provisional: [
-    { status: 'confirmed', label: 'Confirm' },
-    { status: 'entered_in_error', label: 'Mark as error' },
+    {
+      status: 'confirmed',
+      get label() {
+        return t('clinical.confirm');
+      },
+    },
+    {
+      status: 'entered_in_error',
+      get label() {
+        return t('clinical.markError');
+      },
+    },
   ],
   confirmed: [
-    { status: 'resolved', label: 'Resolve' },
-    { status: 'entered_in_error', label: 'Mark as error' },
+    {
+      status: 'resolved',
+      get label() {
+        return t('clinical.resolve');
+      },
+    },
+    {
+      status: 'entered_in_error',
+      get label() {
+        return t('clinical.markError');
+      },
+    },
   ],
-  resolved: [{ status: 'confirmed', label: 'Active again' }],
+  resolved: [
+    {
+      status: 'confirmed',
+      get label() {
+        return t('clinical.activeAgain');
+      },
+    },
+  ],
   entered_in_error: [],
 };
 
@@ -59,10 +94,10 @@ export function DiagnosesSection({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Diagnoses</h2>
+        <h2 className="text-lg font-semibold">{t('clinical.diagnoses')}</h2>
         {open && canDiagnose && (
           <Button variant="secondary" onClick={() => setAdding(true)}>
-            Add diagnosis
+            {t('clinical.addDiagnosis')}
           </Button>
         )}
       </div>
@@ -72,7 +107,7 @@ export function DiagnosesSection({
       <QueryState
         query={diagnoses}
         isEmpty={(d) => !d.some((x) => x.encounterId === encounterId)}
-        empty="No diagnoses in this visit."
+        empty={t('clinical.noDxVisit')}
       >
         {(items) => (
           <ul className="space-y-2">
@@ -93,7 +128,10 @@ export function DiagnosesSection({
                       {
                         onSuccess: () =>
                           toast(
-                            `Diagnosis ${DIAGNOSIS_STATUS[status].label.toLowerCase()}`,
+                            t('clinical.dxChanged', {
+                              status:
+                                DIAGNOSIS_STATUS[status].label.toLowerCase(),
+                            }),
                           ),
                       },
                     )
@@ -179,7 +217,7 @@ function AddDiagnosisDialog({
   const toast = useToast();
 
   return (
-    <Modal title="Add diagnosis" onClose={onClose}>
+    <Modal title={t('clinical.addDiagnosis')} onClose={onClose}>
       <div className="space-y-4">
         {code ? (
           <div className="flex items-center justify-between rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm">
@@ -191,7 +229,7 @@ function AddDiagnosisDialog({
               className="py-1"
               onClick={() => setCode(null)}
             >
-              Change
+              {t('clinical.change')}
             </Button>
           </div>
         ) : (
@@ -199,26 +237,26 @@ function AddDiagnosisDialog({
         )}
         <div className="grid grid-cols-2 gap-4">
           <SelectField
-            label="Rank"
+            label={t('clinical.rank')}
             value={rank}
             onChange={(e) => setRank(e.target.value as typeof rank)}
             options={[
-              { value: 'primary', label: 'Primary' },
-              { value: 'secondary', label: 'Secondary' },
+              { value: 'primary', label: t('clinical.primary') },
+              { value: 'secondary', label: t('clinical.secondary') },
             ]}
           />
           <SelectField
-            label="Certainty"
+            label={t('clinical.certainty')}
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
             options={[
-              { value: 'provisional', label: 'Provisional' },
-              { value: 'confirmed', label: 'Confirmed' },
+              { value: 'provisional', label: t('clinical.dxProvisional') },
+              { value: 'confirmed', label: t('clinical.dxConfirmed') },
             ]}
           />
         </div>
         <TextAreaField
-          label="Note (optional)"
+          label={t('clinical.noteOptional')}
           rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
@@ -228,7 +266,7 @@ function AddDiagnosisDialog({
         )}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             disabled={!code || actions.add.isPending}
@@ -244,14 +282,14 @@ function AddDiagnosisDialog({
                 },
                 {
                   onSuccess: () => {
-                    toast(`Added ${code.code}`);
+                    toast(t('clinical.added', { code: code.code }));
                     onClose();
                   },
                 },
               )
             }
           >
-            Add
+            {t('clinical.add')}
           </Button>
         </div>
       </div>
@@ -277,18 +315,18 @@ function Icd10Picker({ onPick }: { onPick: (code: Icd10Code) => void }) {
         type="search"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="e.g. J18 or pneumonia"
+        placeholder={t('clinical.icdPh')}
         className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-600 focus:ring-2 focus:ring-teal-600/30 focus:outline-none"
       />
       {q.length >= 2 && (
         <QueryState
           query={results}
           isEmpty={(r) => r.length === 0}
-          empty="No matching code."
+          empty={t('clinical.noCode')}
         >
           {(items) => (
             <ul
-              aria-label="ICD-10 results"
+              aria-label={t('clinical.icdResults')}
               className="max-h-56 divide-y divide-slate-100 overflow-y-auto rounded-md border border-slate-200"
             >
               {items.map((c) => (

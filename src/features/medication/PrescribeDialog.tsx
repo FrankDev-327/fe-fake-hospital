@@ -17,6 +17,7 @@ import {
   useMedicationCatalog,
 } from './api';
 import type { CatalogMedication, CheckIssue } from './api';
+import { t } from '@/i18n';
 
 /** Sensible first guesses from the drug's form; the doctor can change them */
 const DEFAULT_ROUTE: Record<string, string> = {
@@ -98,7 +99,7 @@ export function PrescribeDialog({
       },
       {
         onSuccess: ({ prescription }) => {
-          toast(`Prescribed ${prescription.medication.name}`);
+          toast(t('med.prescribed', { name: prescription.medication.name }));
           onClose();
         },
         onError: (e) => {
@@ -126,14 +127,13 @@ export function PrescribeDialog({
       prescribe.error.code ?? '',
     )
       ? errorMessage(prescribe.error, {
-          encounter_not_open:
-            'The visit is closed: prescribe in an open visit.',
-          unknown_medication: 'This drug is not in the catalog anymore.',
+          encounter_not_open: t('med.pClosed'),
+          unknown_medication: t('med.pUnknown'),
         })
       : null;
 
   return (
-    <Modal title="Prescribe" onClose={onClose}>
+    <Modal title={t('med.prescribe')} onClose={onClose}>
       <div className="space-y-4">
         {drug ? (
           <div className="flex items-center justify-between rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm">
@@ -149,7 +149,7 @@ export function PrescribeDialog({
               className="py-1"
               onClick={() => setDrug(null)}
             >
-              Change
+              {t('med.change')}
             </Button>
           </div>
         ) : (
@@ -160,23 +160,23 @@ export function PrescribeDialog({
           <>
             <div className="grid grid-cols-3 gap-3">
               <TextField
-                label="Dose"
+                label={t('med.dose')}
                 type="number"
                 min="0"
                 step="any"
                 inputMode="decimal"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                error={amount && !amountOk ? 'More than 0' : undefined}
+                error={amount && !amountOk ? t('med.moreThan0') : undefined}
               />
               <SelectField
-                label="Unit"
+                label={t('med.unit')}
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 options={DOSE_UNITS.map((u) => ({ value: u, label: u }))}
               />
               <SelectField
-                label="Route"
+                label={t('med.route')}
                 value={route}
                 onChange={(e) => setRoute(e.target.value)}
                 options={ROUTES.map((r) => ({
@@ -192,11 +192,11 @@ export function PrescribeDialog({
                   checked={asNeeded}
                   onChange={(e) => setAsNeeded(e.target.checked)}
                 />
-                As needed
+                {t('med.asNeeded')}
               </label>
               {!asNeeded && (
                 <TextField
-                  label="Every (hours)"
+                  label={t('med.everyHours')}
                   type="number"
                   min="1"
                   max="168"
@@ -207,11 +207,11 @@ export function PrescribeDialog({
               )}
             </div>
             <TextAreaField
-              label="Instructions (optional)"
+              label={t('med.instructions')}
               rows={2}
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              hint="e.g. With meals, or If temperature > 38.5 °C"
+              hint={t('med.instructionsHint')}
             />
           </>
         )}
@@ -221,14 +221,14 @@ export function PrescribeDialog({
             role="alert"
             className="space-y-2 rounded-md border-2 border-red-300 bg-red-50 p-3 text-sm text-red-900"
           >
-            <strong>Stopped by a safety check</strong>
+            <strong>{t('med.blocked')}</strong>
             <ul className="list-disc pl-5">
               {blocking.map((b) => (
                 <li key={b.code}>{b.message}</li>
               ))}
             </ul>
             <TextAreaField
-              label="Prescribe anyway? Write why (it is recorded)"
+              label={t('med.anyway')}
               rows={2}
               value={overrideReason}
               onChange={(e) => setOverrideReason(e.target.value)}
@@ -237,7 +237,7 @@ export function PrescribeDialog({
         )}
         {warnings.length > 0 && (
           <div className="space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-            <strong>Check before prescribing</strong>
+            <strong>{t('med.checkFirst')}</strong>
             <ul className="list-disc pl-5">
               {warnings.map((w) => (
                 <li key={w.code}>{w.message}</li>
@@ -249,7 +249,7 @@ export function PrescribeDialog({
                 checked={acknowledged}
                 onChange={(e) => setAcknowledged(e.target.checked)}
               />
-              I have checked these
+              {t('med.checked')}
             </label>
           </div>
         )}
@@ -257,14 +257,14 @@ export function PrescribeDialog({
 
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             disabled={!canSubmit}
             className={blocking.length ? 'bg-red-700 hover:bg-red-800' : ''}
             onClick={submit}
           >
-            {blocking.length ? 'Prescribe anyway' : 'Prescribe'}
+            {blocking.length ? t('med.prescribeAnyway') : t('med.prescribe')}
           </Button>
         </div>
       </div>
@@ -282,25 +282,25 @@ function DrugPicker({ onPick }: { onPick: (d: CatalogMedication) => void }) {
         htmlFor="drug-search"
         className="block text-sm font-medium text-slate-700"
       >
-        Drug
+        {t('med.drug')}
       </label>
       <input
         id="drug-search"
         type="search"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Name, active ingredient or ATC code"
+        placeholder={t('med.drugPh')}
         className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-600 focus:ring-2 focus:ring-teal-600/30 focus:outline-none"
       />
       {q.length >= 2 && (
         <QueryState
           query={results}
           isEmpty={(r) => r.length === 0}
-          empty="Not in the catalog."
+          empty={t('med.notInCatalog')}
         >
           {(items) => (
             <ul
-              aria-label="Drugs"
+              aria-label={t('med.drugs')}
               className="max-h-56 divide-y divide-slate-100 overflow-y-auto rounded-md border border-slate-200"
             >
               {items.map((d) => (

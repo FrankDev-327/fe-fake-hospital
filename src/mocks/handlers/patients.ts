@@ -1,7 +1,13 @@
 import { delay, http, HttpResponse } from 'msw';
 import { z } from 'zod';
-import { patientIdsFor, toSummary } from '../data/patients';
-import { mockDb, newId, nowIso, patientById } from '../db';
+import { toSummary } from '../data/patients';
+import {
+  accessiblePatientIds,
+  mockDb,
+  newId,
+  nowIso,
+  patientById,
+} from '../db';
 import {
   badRequest,
   canSeePatient,
@@ -119,7 +125,7 @@ export const patientsHandlers = [
     await delay();
     const staff = guard(request, ['doctor', 'nurse']);
     if (staff instanceof Response) return staff;
-    const ids = patientIdsFor(staff.id, staff.role);
+    const ids = accessiblePatientIds(staff.id, staff.role);
     return HttpResponse.json({
       items: mockDb
         .get()
@@ -143,8 +149,8 @@ export const patientsHandlers = [
       .get()
       .patients.filter((p) =>
         q
-          ? `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) ||
-            `${p.lastName} ${p.firstName}`.toLowerCase().includes(q) ||
+          ? `${p.firstName ?? ''} ${p.lastName}`.toLowerCase().includes(q) ||
+            `${p.lastName} ${p.firstName ?? ''}`.toLowerCase().includes(q) ||
             p.mrn.toLowerCase() === q
           : oibQ
             ? p.oib === oibQ
@@ -164,6 +170,45 @@ export const patientsHandlers = [
       return notFound('patient_not_found');
     return HttpResponse.json(patient);
   }),
+
+  /** Mother <-> child links (made by a birth). Same access as the chart. */
+  http.get(
+    '/api/patients/patients/:patientId/relations',
+    async ({ request, params }) => {
+      await delay();
+      const staff = guard(request, [
+        'receptionist',
+        'admin',
+        'doctor',
+        'nurse',
+      ]);
+      if (staff instanceof Response) return staff;
+      const id = String(params.patientId);
+      const clinician = staff.role === 'doctor' || staff.role === 'nurse';
+      if (!patientById(id) || (clinician && !canSeePatient(staff, id)))
+        return notFound('patient_not_found');
+      const card = (relation: 'mother' | 'child', otherId: string) => {
+        const o = patientById(otherId)!;
+        return {
+          relation,
+          patientId: o.id,
+          mrn: o.mrn,
+          firstName: o.firstName,
+          lastName: o.lastName,
+        };
+      };
+      const { relations } = mockDb.get();
+      const items = [
+        ...relations
+          .filter((r) => r.childId === id)
+          .map((r) => card('mother', r.motherId)),
+        ...relations
+          .filter((r) => r.motherId === id)
+          .map((r) => card('child', r.childId)),
+      ];
+      return HttpResponse.json({ items });
+    },
+  ),
 
   /** Partial update with optimistic locking: wrong version -> 409 stale_version */
   http.patch(

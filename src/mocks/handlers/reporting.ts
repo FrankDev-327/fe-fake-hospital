@@ -1,5 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
-import { BEDS, WARDS } from '../data/admissions';
+import { WARDS } from '../data/admissions';
+import { mockDb } from '../db';
 import { daysFromNow } from '../data/ids';
 import { badRequest, guard } from './guard';
 
@@ -16,7 +17,9 @@ export const reportingHandlers = [
     const staff = guard(request, ['admin', 'doctor', 'nurse']);
     if (staff instanceof Response) return staff;
     const wards = WARDS.map((w) => {
-      const beds = BEDS.filter((b) => b.wardId === w.id && b.active);
+      const beds = mockDb
+        .get()
+        .beds.filter((b) => b.wardId === w.id && b.active);
       const occupied = beds.filter((b) => b.stay).length;
       return {
         wardId: w.id,

@@ -6,6 +6,7 @@ import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useMyPatients, usePatientSearch } from './api';
 import { matchesPatient } from './filter';
 import { PatientTable } from './PatientTable';
+import { t } from '@/i18n';
 
 /** Doctors and nurses see their patients; the front desk searches everyone. */
 export function PatientsPage() {
@@ -25,13 +26,13 @@ function MyPatients() {
   return (
     <>
       <PageHeader
-        title="My patients"
-        subtitle="Patients you are assigned to right now"
+        title={t('patients.myPatients')}
+        subtitle={t('patients.myPatientsSub')}
       />
       <input
         type="search"
-        aria-label="Filter my patients"
-        placeholder="Filter by name or MRN"
+        aria-label={t('patients.filter')}
+        placeholder={t('patients.filterPh')}
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
         className="mb-4 w-full max-w-md rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-teal-600 focus:ring-2 focus:ring-teal-600/30 focus:outline-none"
@@ -39,7 +40,7 @@ function MyPatients() {
       <QueryState
         query={patients}
         isEmpty={(items) => items.length === 0}
-        empty="No patients assigned to you."
+        empty={t('patients.noneAssigned')}
       >
         {(items) => {
           const shown = items.filter((p) => matchesPatient(p, filter));
@@ -75,33 +76,33 @@ function PatientSearch() {
   return (
     <>
       <PageHeader
-        title="Patients"
-        subtitle="Search by name or MRN"
+        title={t('patients.title')}
+        subtitle={t('patients.searchSub')}
         actions={
           <Link
             to="/patients/new"
             className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800"
           >
-            Register patient
+            {t('patients.register')}
           </Link>
         }
       />
       <input
         type="search"
-        aria-label="Search patients"
-        placeholder="e.g. Matić or MRN-240137"
+        aria-label={t('patients.search')}
+        placeholder={t('patients.searchPh')}
         value={text}
         onChange={(e) => setText(e.target.value)}
         autoFocus
         className="mb-4 w-full max-w-md rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-teal-600 focus:ring-2 focus:ring-teal-600/30 focus:outline-none"
       />
       {q.length < 3 ? (
-        <p className="text-sm text-slate-500">Type at least 3 characters.</p>
+        <p className="text-sm text-slate-500">{t('patients.min3')}</p>
       ) : (
         <QueryState
           query={results}
           isEmpty={(items) => items.length === 0}
-          empty={`No patient matches "${q}".`}
+          empty={t('patients.noMatch', { q })}
         >
           {(items) => <PatientTable patients={items} />}
         </QueryState>

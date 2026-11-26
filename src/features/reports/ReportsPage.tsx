@@ -4,6 +4,7 @@ import { useLabTests } from '@/features/lab/api';
 import { api } from '@/lib/api';
 import { useNow } from '@/hooks/useNow';
 import { formatDate, isoDay } from '@/lib/format';
+import { t } from '@/i18n';
 
 interface Occupancy {
   wards: {
@@ -49,14 +50,14 @@ export function ReportsPage() {
 
   return (
     <>
-      <PageHeader title="Reports" subtitle="Numbers only, no patient data" />
+      <PageHeader title={t('reports.title')} subtitle={t('reports.sub')} />
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Bed occupancy right now">
+        <Card title={t('reports.occupancy')}>
           <QueryState query={occupancy}>
             {(o) => (
               <div className="space-y-4">
                 <Stat
-                  label="Whole hospital"
+                  label={t('reports.whole')}
                   occupied={o.total.occupied}
                   beds={o.total.bedsInService}
                   rate={o.total.occupancyRate}
@@ -75,19 +76,19 @@ export function ReportsPage() {
           </QueryState>
         </Card>
 
-        <Card title="Critical lab results, last 7 days">
+        <Card title={t('reports.critical')}>
           <QueryState
             query={critical}
             isEmpty={(c) => c.days.length === 0}
-            empty="None."
+            empty={t('reports.none')}
           >
             {(c) => (
               <Table>
                 <thead>
                   <tr>
-                    <Th>Day</Th>
-                    <Th>Test</Th>
-                    <Th>Count</Th>
+                    <Th>{t('reports.day')}</Th>
+                    <Th>{t('reports.test')}</Th>
+                    <Th>{t('reports.count')}</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,13 +129,13 @@ function Stat({
       <div className="mb-1 flex justify-between text-sm">
         <span className="font-medium">{label}</span>
         <span className="text-slate-600">
-          {occupied} / {beds} beds · {rate ?? '—'}%
+          {t('reports.beds', { occupied, beds, rate: rate ?? '—' })}
         </span>
       </div>
       <div
         className="h-2 overflow-hidden rounded-full bg-slate-100"
         role="meter"
-        aria-label={`${label} occupancy`}
+        aria-label={t('reports.occLabel', { label })}
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}

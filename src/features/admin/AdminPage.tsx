@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ROLE_LABELS, STAFF_ROLES } from '@/auth/types';
+import { STAFF_ROLES } from '@/auth/types';
 import type { Staff, StaffRole } from '@/auth/types';
 import { Badge, PageHeader, QueryState, Table, Td, Th } from '@/components/ui';
 import { api } from '@/lib/api';
 import { timeAgo } from '@/lib/format';
+import { t } from '@/i18n';
 
 const useStaff = (role: StaffRole | undefined) =>
   useQuery({
@@ -24,11 +25,11 @@ export function AdminPage() {
   return (
     <>
       <PageHeader
-        title="Staff"
-        subtitle="Everyone with an account"
+        title={t('admin.staff')}
+        subtitle={t('admin.sub')}
         actions={
           <label className="text-sm">
-            <span className="mr-2 text-slate-600">Role</span>
+            <span className="mr-2 text-slate-600">{t('admin.role')}</span>
             <select
               value={role ?? ''}
               onChange={(e) =>
@@ -36,10 +37,10 @@ export function AdminPage() {
               }
               className="rounded-md border border-slate-300 bg-white px-3 py-2"
             >
-              <option value="">All</option>
+              <option value="">{t('admin.all')}</option>
               {STAFF_ROLES.map((r) => (
                 <option key={r} value={r}>
-                  {ROLE_LABELS[r]}
+                  {t(`roles.${r}`)}
                 </option>
               ))}
             </select>
@@ -49,18 +50,18 @@ export function AdminPage() {
       <QueryState
         query={staff}
         isEmpty={(s) => s.length === 0}
-        empty="Nobody with this role."
+        empty={t('admin.none')}
       >
         {(items) => (
           <Table>
             <thead>
               <tr>
-                <Th>Name</Th>
-                <Th>Role</Th>
-                <Th>Email</Th>
-                <Th>License</Th>
-                <Th>Status</Th>
-                <Th>Last login</Th>
+                <Th>{t('admin.name')}</Th>
+                <Th>{t('admin.role')}</Th>
+                <Th>{t('admin.email')}</Th>
+                <Th>{t('admin.license')}</Th>
+                <Th>{t('admin.status')}</Th>
+                <Th>{t('admin.lastLogin')}</Th>
               </tr>
             </thead>
             <tbody>
@@ -69,20 +70,20 @@ export function AdminPage() {
                   <Td className="font-medium">
                     {s.lastName}, {s.firstName}
                   </Td>
-                  <Td>{ROLE_LABELS[s.role]}</Td>
+                  <Td>{t(`roles.${s.role}`)}</Td>
                   <Td className="text-slate-600">{s.email}</Td>
                   <Td className="font-mono text-xs">
                     {s.licenseNumber ?? '—'}
                   </Td>
                   <Td>
                     {s.isActive ? (
-                      <Badge tone="green">Active</Badge>
+                      <Badge tone="green">{t('admin.active')}</Badge>
                     ) : (
-                      <Badge>Deactivated</Badge>
+                      <Badge>{t('admin.deactivated')}</Badge>
                     )}
                   </Td>
                   <Td className="text-slate-500">
-                    {s.lastLoginAt ? timeAgo(s.lastLoginAt) : 'Never'}
+                    {s.lastLoginAt ? timeAgo(s.lastLoginAt) : t('admin.never')}
                   </Td>
                 </tr>
               ))}

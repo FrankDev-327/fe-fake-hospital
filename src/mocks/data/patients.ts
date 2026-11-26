@@ -1,13 +1,16 @@
 import { DOCTOR_ID, NURSE_ID, OTHER_DOCTOR_ID } from './staff';
-import { fakeId } from './ids';
+import { fakeId, hoursAgo } from './ids';
 
 /** GET /api/patients/patients/:id (full record, decrypted by the backend) */
 export interface FakePatient {
   id: string;
   mrn: string;
-  firstName: string;
+  /** null = a newborn whose parents haven't chosen a name yet */
+  firstName: string | null;
   lastName: string;
   dateOfBirth: string;
+  /** exact time of birth, only for babies born in this hospital */
+  bornAt?: string | null;
   sex: 'female' | 'male' | 'other' | 'unknown';
   oib: string | null;
   mbo: string | null;
@@ -34,7 +37,7 @@ export function withOibCheckDigit(first10: string) {
 
 const p = (
   n: number,
-  firstName: string,
+  firstName: string | null,
   lastName: string,
   dateOfBirth: string,
   sex: FakePatient['sex'],
@@ -49,7 +52,7 @@ const p = (
   oib: withOibCheckDigit(String(1000000000 + n * 79190913).slice(0, 10)),
   mbo: String(100000000 + n * 1234567).slice(0, 9),
   email:
-    `${firstName}.${lastName}`
+    `${firstName ?? 'baby'}.${lastName}`
       .toLowerCase()
       .normalize('NFD')
       .replace(/[^\w.]/g, '') + '@mail.test',
@@ -65,6 +68,8 @@ const p = (
   ...extra,
 });
 
+const BABY_BORN_AT = hoursAgo(20);
+
 /** Seed data. The live (changeable) copy is in mocks/db.ts. */
 export const PATIENTS: FakePatient[] = [
   p(1, 'Josip', 'Matić', '1948-03-12', 'male'),
@@ -79,11 +84,24 @@ export const PATIENTS: FakePatient[] = [
   p(10, 'Ružica', 'Pavić', '1952-06-17', 'female'),
   p(11, 'Filip', 'Božić', '2010-10-10', 'male', { email: null }),
   p(12, 'Ana', 'Matić', '1950-08-28', 'female', { phone: null }),
+  p(13, 'Marija', 'Horvat', '1994-04-02', 'female'),
+  // Marija's baby, born yesterday: no name yet, no OIB/MBO (those come later from the registry)
+  p(14, null, 'Horvat', BABY_BORN_AT.slice(0, 10), 'female', {
+    bornAt: BABY_BORN_AT,
+    oib: null,
+    mbo: null,
+    email: null,
+    phone: null,
+    address: null,
+    bloodType: null,
+  }),
 ];
 
 /** doctor_patient: who is whose doctor right now */
 export const DOCTOR_PATIENTS: Record<string, string[]> = {
-  [DOCTOR_ID]: PATIENTS.slice(0, 6).map((x) => x.id),
+  [DOCTOR_ID]: [...PATIENTS.slice(0, 6), ...PATIENTS.slice(12, 14)].map(
+    (x) => x.id,
+  ),
   [OTHER_DOCTOR_ID]: PATIENTS.slice(6, 9).map((x) => x.id),
 };
 
@@ -110,3 +128,13 @@ export const toSummary = (x: FakePatient) => ({
   sex: x.sex,
   dateOfBirth: x.dateOfBirth,
 });
+
+/** patient_relations: child -> mother */
+export interface FakeRelation {
+  childId: string;
+  motherId: string;
+}
+
+export const RELATIONS: FakeRelation[] = [
+  { childId: PATIENTS[13]!.id, motherId: PATIENTS[12]!.id },
+];

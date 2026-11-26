@@ -15,12 +15,21 @@ import {
 } from './api';
 import type { LabOrder, LabResult } from './api';
 import { OrderLabDialog } from './OrderLabDialog';
+import { t } from '@/i18n';
 
 const LAB_ERRORS = {
-  order_not_waiting_for_collection: 'The sample was already collected.',
-  order_closed: 'This order is already closed.',
-  order_has_results: 'Results came in already: it can no longer be cancelled.',
-  already_acknowledged: 'Someone already acknowledged this result.',
+  get order_not_waiting_for_collection() {
+    return t('lab.eCollected');
+  },
+  get order_closed() {
+    return t('lab.eClosed');
+  },
+  get order_has_results() {
+    return t('lab.eHasResults');
+  },
+  get already_acknowledged() {
+    return t('lab.eAcked');
+  },
 };
 
 /** The patient's lab orders and results. Critical results stay red until a doctor acknowledges. */
@@ -43,10 +52,10 @@ export function LabCard({
     <Card
       title={
         <span className="flex items-center justify-between">
-          Lab
+          {t('lab.lab')}
           {isDoctor && openEncounterId && (
             <Button className="py-1" onClick={() => setOrdering(true)}>
-              Order lab tests
+              {t('lab.order')}
             </Button>
           )}
         </span>
@@ -63,7 +72,7 @@ export function LabCard({
       <QueryState
         query={orders}
         isEmpty={(o) => o.length === 0}
-        empty="No lab orders."
+        empty={t('lab.noOrders')}
       >
         {(items) => {
           const unacked = items
@@ -76,8 +85,12 @@ export function LabCard({
                   role="alert"
                   className="rounded-md border-2 border-red-300 bg-red-50 px-3 py-2 text-sm font-medium text-red-900"
                 >
-                  {unacked.length} critical result
-                  {unacked.length > 1 ? 's' : ''} waiting for a doctor
+                  {t(
+                    unacked.length === 1
+                      ? 'lab.critWaiting_one'
+                      : 'lab.critWaiting_other',
+                    { count: unacked.length },
+                  )}
                 </div>
               )}
               {items.map((o) => (
@@ -127,7 +140,7 @@ function OrderItem({
         <Badge tone={ORDER_STATUS[o.status].tone}>
           {ORDER_STATUS[o.status].label}
         </Badge>
-        {o.priority === 'urgent' && <Badge tone="red">Urgent</Badge>}
+        {o.priority === 'urgent' && <Badge tone="red">{t('lab.urgent')}</Badge>}
         <span className="text-slate-500">
           {formatDateTime(o.orderedAt)} · <StaffName id={o.orderedBy} />
         </span>
@@ -139,11 +152,11 @@ function OrderItem({
               disabled={actions.collect.isPending}
               onClick={() =>
                 actions.collect.mutate(o.id, {
-                  onSuccess: () => toast('Sample collected'),
+                  onSuccess: () => toast(t('lab.collectedToast')),
                 })
               }
             >
-              Sample taken
+              {t('lab.sampleTaken')}
             </Button>
           )}
           {canCancel && (
@@ -153,26 +166,26 @@ function OrderItem({
               disabled={actions.cancel.isPending}
               onClick={() =>
                 actions.cancel.mutate(o.id, {
-                  onSuccess: () => toast('Lab order cancelled'),
+                  onSuccess: () => toast(t('lab.cancelledToast')),
                 })
               }
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           )}
         </span>
       </header>
       <table className="w-full text-sm">
         <tbody>
-          {o.tests.map((t) => {
-            const r = resultFor(t.code);
+          {o.tests.map((test) => {
+            const r = resultFor(test.code);
             const alarm = r?.critical && !r.acknowledged;
             return (
               <tr
-                key={t.code}
+                key={test.code}
                 className={`border-b border-slate-50 last:border-0 ${alarm ? 'bg-red-50' : ''}`}
               >
-                <td className="px-3 py-2">{t.name}</td>
+                <td className="px-3 py-2">{test.name}</td>
                 <td className="px-3 py-2 font-medium">
                   {r ? (
                     (r.value ?? r.valueText)
@@ -180,11 +193,13 @@ function OrderItem({
                     <span className="font-normal text-slate-400">—</span>
                   )}{' '}
                   {r && (
-                    <span className="font-normal text-slate-500">{t.unit}</span>
+                    <span className="font-normal text-slate-500">
+                      {test.unit}
+                    </span>
                   )}
                 </td>
                 <td className="px-3 py-2 text-xs text-slate-400">
-                  {rangeText(t)} {rangeText(t) && t.unit}
+                  {rangeText(test)} {rangeText(test) && test.unit}
                 </td>
                 <td className="px-3 py-2 text-right">
                   {r && <ResultFlag result={r} />}{' '}
@@ -194,12 +209,11 @@ function OrderItem({
                       disabled={actions.acknowledge.isPending}
                       onClick={() =>
                         actions.acknowledge.mutate(r.id, {
-                          onSuccess: () =>
-                            toast('Critical result acknowledged'),
+                          onSuccess: () => toast(t('lab.ackToast')),
                         })
                       }
                     >
-                      Acknowledge
+                      {t('lab.acknowledge')}
                     </Button>
                   )}
                 </td>
@@ -218,7 +232,7 @@ function ResultFlag({ result }: { result: LabResult }) {
     <>
       {flag && <Badge tone={flag.tone}>{flag.label}</Badge>}
       {result.critical && result.acknowledged && (
-        <span className="ml-1 text-xs text-slate-500">seen</span>
+        <span className="ml-1 text-xs text-slate-500">{t('lab.seen')}</span>
       )}
     </>
   );

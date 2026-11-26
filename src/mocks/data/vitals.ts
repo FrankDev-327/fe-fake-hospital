@@ -12,7 +12,10 @@ export type ObservationType =
   | 'weight'
   | 'height'
   | 'pain'
-  | 'glucose';
+  | 'glucose'
+  | 'apgar_1'
+  | 'apgar_5'
+  | 'apgar_10';
 
 /** Fixed unit per vital sign (never typed by hand) */
 export const OBSERVATION_UNITS: Record<ObservationType, string> = {
@@ -25,6 +28,9 @@ export const OBSERVATION_UNITS: Record<ObservationType, string> = {
   height: 'cm',
   pain: '0-10',
   glucose: 'mmol/L',
+  apgar_1: '0-10',
+  apgar_5: '0-10',
+  apgar_10: '0-10',
 };
 
 /** Plausible ranges (typo catcher, not "normal" ranges): apps/clinical vitals.service.ts */
@@ -38,6 +44,9 @@ export const RANGES: Record<ObservationType, [number, number]> = {
   height: [20, 250],
   pain: [0, 10],
   glucose: [0.5, 50],
+  apgar_1: [0, 10],
+  apgar_5: [0, 10],
+  apgar_10: [0, 10],
 };
 
 export interface FakeObservation {

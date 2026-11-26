@@ -26,11 +26,14 @@ const Reading = z
         path: ['value'],
         message: `${r.type} must be between ${min} and ${max}`,
       });
-    if (r.type === 'pain' && !Number.isInteger(r.value))
+    if (
+      (r.type === 'pain' || r.type.startsWith('apgar_')) &&
+      !Number.isInteger(r.value)
+    )
       ctx.addIssue({
         code: 'custom',
         path: ['value'],
-        message: 'pain is a whole number 0-10',
+        message: `${r.type} is a whole number 0-10`,
       });
     if (r.type === 'bp') {
       if (

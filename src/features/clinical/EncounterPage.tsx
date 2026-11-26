@@ -22,6 +22,7 @@ import { MedicationList } from '@/features/medication/MedicationList';
 import { RecordVitalsDialog } from '@/features/vitals/RecordVitalsDialog';
 import { DiagnosesSection } from './DiagnosesSection';
 import { NotesSection } from './NotesSection';
+import { t } from '@/i18n';
 
 const route = getRouteApi('/app/patients/$patientId/visits/$encounterId');
 
@@ -58,7 +59,7 @@ export function EncounterPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold">
-              {ENCOUNTER_TYPE_LABEL[e.type]} visit
+              {t('clinical.visitTitle', { type: ENCOUNTER_TYPE_LABEL[e.type] })}
             </h1>
             <Badge tone={ENCOUNTER_STATUS[e.status].tone}>
               {ENCOUNTER_STATUS[e.status].label}
@@ -74,18 +75,18 @@ export function EncounterPage() {
         {open && (
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => setDialog('vitals')}>
-              Record vitals
+              {t('clinical.recordVitals')}
             </Button>
             {isDoctor && (
               <>
                 <Button variant="secondary" onClick={() => setDialog('lab')}>
-                  Order lab tests
+                  {t('lab.order')}
                 </Button>
                 <Button onClick={() => setClosing('finish')}>
-                  Finish visit
+                  {t('clinical.finishVisit')}
                 </Button>
                 <Button variant="ghost" onClick={() => setClosing('cancel')}>
-                  Cancel visit
+                  {t('clinical.cancelVisit')}
                 </Button>
               </>
             )}
@@ -95,9 +96,9 @@ export function EncounterPage() {
 
       {!open && (
         <Alert tone="info">
-          This visit is {e.status === 'finished' ? 'finished' : 'cancelled'}.
-          Notes can still be corrected (amend) and diagnoses updated, but
-          nothing new can be added.
+          {e.status === 'finished'
+            ? t('clinical.closedFinished')
+            : t('clinical.closedCancelled')}
         </Alert>
       )}
 
@@ -118,7 +119,9 @@ export function EncounterPage() {
             canDiagnose={isDoctor}
           />
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Medication</h2>
+            <h2 className="text-lg font-semibold">
+              {t('clinical.medication')}
+            </h2>
             <MedicationList
               patientId={patientId}
               patientLabel={patient.data ? patientName(patient.data) : ''}
@@ -172,29 +175,35 @@ function CloseVisitDialog({
   ) as { drafts?: number } | undefined;
   return (
     <Modal
-      title={action === 'finish' ? 'Finish this visit?' : 'Cancel this visit?'}
+      title={
+        action === 'finish' ? t('clinical.finishQ') : t('clinical.cancelQ')
+      }
       onClose={onClose}
     >
       <p className="mb-4 text-sm text-slate-600">
         {action === 'finish'
-          ? 'All notes must be signed. After finishing, nothing new can be added to this visit.'
-          : 'Only for a visit opened by mistake: possible while nothing was signed or diagnosed in it.'}
+          ? t('clinical.finishText')
+          : t('clinical.cancelText')}
       </p>
       {close.error && (
         <div className="mb-4">
           <Alert>
             {errorMessage(close.error, {
-              unsigned_notes: `There ${body?.drafts === 1 ? 'is 1 unsigned note' : `are ${body?.drafts} unsigned notes`}. Sign or discard ${body?.drafts === 1 ? 'it' : 'them'} first.`,
-              encounter_has_records:
-                'This visit already has signed notes or diagnoses: finish it instead.',
-              encounter_closed: 'The visit is already closed.',
+              unsigned_notes: t(
+                body?.drafts === 1
+                  ? 'clinical.unsigned_one'
+                  : 'clinical.unsigned_other',
+                { count: body?.drafts },
+              ),
+              encounter_has_records: t('clinical.hasRecords'),
+              encounter_closed: t('clinical.alreadyClosed'),
             })}
           </Alert>
         </div>
       )}
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onClose}>
-          Back
+          {t('common.back')}
         </Button>
         <Button
           disabled={close.isPending}
@@ -203,14 +212,18 @@ function CloseVisitDialog({
             close.mutate(undefined, {
               onSuccess: () => {
                 toast(
-                  action === 'finish' ? 'Visit finished' : 'Visit cancelled',
+                  action === 'finish'
+                    ? t('clinical.visitFinished')
+                    : t('clinical.visitCancelled'),
                 );
                 onClose();
               },
             })
           }
         >
-          {action === 'finish' ? 'Finish visit' : 'Cancel visit'}
+          {action === 'finish'
+            ? t('clinical.finishVisit')
+            : t('clinical.cancelVisit')}
         </Button>
       </div>
     </Modal>

@@ -15,6 +15,8 @@ import { AdminPage } from '@/features/admin/AdminPage';
 import { AppointmentsPage } from '@/features/appointments/AppointmentsPage';
 import { EncounterPage } from '@/features/clinical/EncounterPage';
 import { LabPage } from '@/features/lab/LabPage';
+import { DeliveryPage } from '@/features/maternity/DeliveryPage';
+import { MaternityPage } from '@/features/maternity/MaternityPage';
 import { MedicationPage } from '@/features/medication/MedicationPage';
 import { EditPatientPage } from '@/features/patients/EditPatientPage';
 import { PatientPage } from '@/features/patients/PatientPage';
@@ -123,6 +125,14 @@ const encounterRoute = createRoute({
   component: EncounterPage,
 });
 
+// one delivery (labor, babies, team): the mother's care team
+const deliveryRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/maternity/$deliveryId',
+  beforeLoad: onlyFor(rolesOf('/maternity')),
+  component: DeliveryPage,
+});
+
 /** A simple page from the menu: path + role check + component. Generic so each keeps its own path type. */
 const section = <TPath extends Exclude<NavItem['to'], '/patients'>>(
   to: TPath,
@@ -145,6 +155,8 @@ const routeTree = rootRoute.addChildren([
     editPatientRoute,
     encounterRoute,
     section('/ward', WardPage),
+    section('/maternity', MaternityPage),
+    deliveryRoute,
     section('/medication', MedicationPage),
     section('/lab', LabPage),
     section('/appointments', AppointmentsPage),

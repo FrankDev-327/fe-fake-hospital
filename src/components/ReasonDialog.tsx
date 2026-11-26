@@ -4,6 +4,7 @@ import { Alert } from './Alert';
 import { Button } from './Button';
 import { TextAreaField } from './fields';
 import { Modal } from './Modal';
+import { t } from '@/i18n';
 
 /** "Are you sure? Write why." Used for stop, mark as error, cancel... (the reason is recorded) */
 export function ReasonDialog({
@@ -31,16 +32,16 @@ export function ReasonDialog({
       <div className="space-y-4">
         {children && <div className="text-sm text-slate-600">{children}</div>}
         <TextAreaField
-          label="Reason"
+          label={t('common.reason')}
           rows={2}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          hint="At least 3 characters"
+          hint={t('common.min3')}
         />
         {error && <Alert>{error}</Alert>}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Back
+            {t('common.back')}
           </Button>
           <Button
             className={danger ? 'bg-red-700 hover:bg-red-800' : ''}

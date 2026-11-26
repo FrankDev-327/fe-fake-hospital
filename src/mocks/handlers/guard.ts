@@ -1,8 +1,8 @@
 import { HttpResponse } from 'msw';
 import type { z } from 'zod';
 import type { Staff, StaffRole } from '@/auth/types';
-import { patientIdsFor } from '../data/patients';
 import { STAFF } from '../data/staff';
+import { accessiblePatientIds } from '../db';
 import { staffIdFromRequest } from '../session';
 
 /**
@@ -25,7 +25,7 @@ export function guard(
 
 /** The backend's access check: not your patient = 404 (doesn't even say the patient exists). */
 export function canSeePatient(staff: Staff, patientId: string) {
-  return patientIdsFor(staff.id, staff.role).includes(patientId);
+  return accessiblePatientIds(staff.id, staff.role).includes(patientId);
 }
 
 export const notFound = (error: string) =>

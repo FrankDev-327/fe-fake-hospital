@@ -7,6 +7,7 @@ import { useToast } from '@/components/toast-context';
 import { errorMessage } from '@/lib/errors';
 import { FLAG, flagFor, rangeText, useLabWorkActions } from './api';
 import type { LabTest, WorklistItem } from './api';
+import { t } from '@/i18n';
 
 /** Lab tech: type the values of a collected order. The flag shows while typing. */
 export function EnterResultsDialog({
@@ -34,14 +35,17 @@ export function EnterResultsDialog({
   const invalid = filled.some((p) => Number.isNaN(p.value));
 
   return (
-    <Modal title={`Results · order ${order.id.slice(-8)}`} onClose={onClose}>
+    <Modal
+      title={t('lab.resultsTitle', { id: order.id.slice(-8) })}
+      onClose={onClose}
+    >
       <div className="space-y-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-slate-500 uppercase">
-              <th className="pb-2">Test</th>
-              <th className="pb-2">Value</th>
-              <th className="pb-2">Normal</th>
+              <th className="pb-2">{t('lab.test')}</th>
+              <th className="pb-2">{t('lab.value')}</th>
+              <th className="pb-2">{t('lab.normal')}</th>
               <th className="pb-2" />
             </tr>
           </thead>
@@ -84,14 +88,11 @@ export function EnterResultsDialog({
             })}
           </tbody>
         </table>
-        <p className="text-xs text-slate-500">
-          Leave a test empty to enter it later. The order is complete when every
-          test has a value.
-        </p>
+        <p className="text-xs text-slate-500">{t('lab.leaveEmpty')}</p>
         {enterResults.error && (
           <Alert>
             {errorMessage(enterResults.error, {
-              order_not_collected: 'The sample has not been collected yet.',
+              order_not_collected: t('lab.notCollected'),
               result_already_entered:
                 'A result was already entered for one of these tests.',
             })}
@@ -99,7 +100,7 @@ export function EnterResultsDialog({
         )}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             disabled={!filled.length || invalid || enterResults.isPending}
@@ -116,9 +117,14 @@ export function EnterResultsDialog({
                   onSuccess: ({ results }) => {
                     const critical = results.filter((r) => r.critical).length;
                     toast(
-                      `${results.length} result${results.length > 1 ? 's' : ''} saved` +
+                      t(
+                        results.length === 1
+                          ? 'lab.resSaved_one'
+                          : 'lab.resSaved_other',
+                        { count: results.length },
+                      ) +
                         (critical
-                          ? `, ${critical} critical: the doctor is alerted`
+                          ? t('lab.critAlert', { count: critical })
                           : ''),
                     );
                     onClose();
@@ -127,7 +133,7 @@ export function EnterResultsDialog({
               )
             }
           >
-            Save results
+            {t('lab.saveResults')}
           </Button>
         </div>
       </div>

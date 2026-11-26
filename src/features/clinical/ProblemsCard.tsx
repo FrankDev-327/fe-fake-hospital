@@ -1,16 +1,17 @@
 import { Badge, Card, QueryState } from '@/components/ui';
 import { formatDate } from '@/lib/format';
 import { DIAGNOSIS_STATUS, useDiagnoses } from './api';
+import { t } from '@/i18n';
 
 /** Current diagnoses from all visits: the patient's problem list. */
 export function ProblemsCard({ patientId }: { patientId: string }) {
   const diagnoses = useDiagnoses(patientId);
   return (
-    <Card title="Diagnoses">
+    <Card title={t('clinical.diagnoses')}>
       <QueryState
         query={diagnoses}
         isEmpty={(d) => d.length === 0}
-        empty="No diagnoses."
+        empty={t('clinical.noDx')}
       >
         {(items) => (
           <ul className="space-y-3 text-sm">

@@ -11,6 +11,7 @@ import { usePatient, useUpdatePatient } from './api';
 import type { Patient, PatientInput } from './api';
 import { toInput } from './patient-form';
 import { PatientForm } from './PatientForm';
+import { t } from '@/i18n';
 
 const route = getRouteApi('/app/patients/$patientId/edit');
 
@@ -44,12 +45,14 @@ export function EditPatientPage() {
 
   return (
     <div className="max-w-3xl">
-      <PageHeader title={`Edit ${patientName(p)}`} subtitle={p.mrn} />
+      <PageHeader
+        title={t('patients.editTitle', { name: patientName(p) })}
+        subtitle={p.mrn}
+      />
       <div className="mb-4 space-y-2">
         {stale && (
           <Alert>
-            Someone else changed this patient while you were editing. Reload to
-            see their changes, then make yours again.{' '}
+            {t('patients.stale')}{' '}
             <Button
               variant="secondary"
               className="ml-2 py-1"
@@ -58,7 +61,7 @@ export function EditPatientPage() {
                 void patient.refetch();
               }}
             >
-              Reload
+              {t('common.reload')}
             </Button>
           </Alert>
         )}
@@ -68,7 +71,7 @@ export function EditPatientPage() {
       <PatientForm
         key={p.version}
         initial={p}
-        submitLabel="Save changes"
+        submitLabel={t('patients.saveChanges')}
         onCancel={() => void back()}
         onSubmit={async (values) => {
           setError(null);
@@ -76,7 +79,7 @@ export function EditPatientPage() {
           if (Object.keys(changes).length === 0) return void back();
           try {
             await update.mutateAsync({ ...changes, version: p.version });
-            toast('Patient details saved');
+            toast(t('patients.saved'));
             await back();
           } catch (e) {
             if (e instanceof ApiError && e.code === 'stale_version')
@@ -84,10 +87,8 @@ export function EditPatientPage() {
             else
               setError(
                 errorMessage(e, {
-                  oib_belongs_to_another_patient:
-                    'This OIB belongs to another patient.',
-                  mbo_belongs_to_another_patient:
-                    'This MBO belongs to another patient.',
+                  oib_belongs_to_another_patient: t('patients.oibTaken'),
+                  mbo_belongs_to_another_patient: t('patients.mboTaken'),
                 }),
               );
           }

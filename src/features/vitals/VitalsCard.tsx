@@ -25,6 +25,7 @@ import {
 } from './api';
 import type { Observation, VitalType } from './api';
 import { RecordVitalsDialog } from './RecordVitalsDialog';
+import { t } from '@/i18n';
 
 /** Chart colors: categorical slots 1 and 2, validated (colorblind-safe, 3:1 on white) */
 const SERIES_1 = '#2a78d6';
@@ -39,8 +40,11 @@ const GRID = '#e2e8f0'; // slate-200: recessive grid
 export function VitalsCard({
   patientId,
   openEncounterId,
+  newborn = false,
 }: {
   patientId: string;
+  /** shows the Apgar fields when recording */
+  newborn?: boolean;
   /** where new readings go; none = no "Record vitals" */
   openEncounterId?: string;
 }) {
@@ -52,10 +56,10 @@ export function VitalsCard({
     <Card
       title={
         <span className="flex items-center justify-between">
-          Vitals
+          {t('vitals.vitals')}
           {openEncounterId && (
             <Button className="py-1" onClick={() => setRecording(true)}>
-              Record vitals
+              {t('vitals.record')}
             </Button>
           )}
         </span>
@@ -64,7 +68,7 @@ export function VitalsCard({
       <QueryState
         query={vitals}
         isEmpty={(v) => v.length === 0}
-        empty="No vitals recorded yet."
+        empty={t('vitals.none')}
       >
         {(all) => {
           const active = all.filter((o) => o.status === 'active');
@@ -76,7 +80,7 @@ export function VitalsCard({
             <div className="space-y-4">
               <div
                 role="tablist"
-                aria-label="Vital sign"
+                aria-label={t('vitals.sign')}
                 className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6"
               >
                 {latest.map((o) => (
@@ -117,6 +121,7 @@ export function VitalsCard({
         <RecordVitalsDialog
           patientId={patientId}
           encounterId={openEncounterId}
+          newborn={newborn}
           onClose={() => setRecording(false)}
         />
       )}
@@ -133,11 +138,7 @@ function VitalChart({
   readings: Observation[];
 }) {
   if (readings.length < 2)
-    return (
-      <p className="text-sm text-slate-500">
-        Not enough readings for a trend yet.
-      </p>
-    );
+    return <p className="text-sm text-slate-500">{t('vitals.notEnough')}</p>;
   const data = [...readings]
     .reverse() // oldest first, left to right
     .map((o) => ({
@@ -231,9 +232,9 @@ function ReadingsTable({
       <Table>
         <thead>
           <tr>
-            <Th>When</Th>
-            <Th>Value</Th>
-            <Th>By</Th>
+            <Th>{t('vitals.when')}</Th>
+            <Th>{t('vitals.value')}</Th>
+            <Th>{t('vitals.by')}</Th>
             <Th />
           </tr>
         </thead>
@@ -260,7 +261,7 @@ function ReadingsTable({
                       className="py-1 text-xs"
                       onClick={() => setWrong(o)}
                     >
-                      Mark as error
+                      {t('vitals.markError')}
                     </Button>
                   )}
                 </Td>
@@ -275,13 +276,15 @@ function ReadingsTable({
           className="py-1 text-xs"
           onClick={() => setShowAll((v) => !v)}
         >
-          {showAll ? 'Show fewer' : `Show all ${readings.length}`}
+          {showAll
+            ? t('vitals.showFewer')
+            : t('vitals.showAll', { count: readings.length })}
         </Button>
       )}
       {wrong && (
         <ReasonDialog
-          title={`Mark ${formatVital(wrong)} as error`}
-          confirmLabel="Mark as error"
+          title={t('vitals.markQ', { value: formatVital(wrong) })}
+          confirmLabel={t('vitals.markError')}
           danger
           pending={markError.isPending}
           error={markError.error ? errorMessage(markError.error) : null}
@@ -291,15 +294,14 @@ function ReadingsTable({
               { id: wrong.id, reason },
               {
                 onSuccess: () => {
-                  toast('Reading marked as error');
+                  toast(t('vitals.marked'));
                   setWrong(null);
                 },
               },
             )
           }
         >
-          The reading stays in the record, crossed out, and is left out of the
-          chart.
+          {t('vitals.markText')}
         </ReasonDialog>
       )}
     </div>

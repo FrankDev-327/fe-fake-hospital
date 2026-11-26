@@ -17,12 +17,18 @@ import {
 import type { Prescription } from './api';
 import { PrescribeDialog } from './PrescribeDialog';
 import { RecordDoseDialog } from './RecordDoseDialog';
+import { t } from '@/i18n';
 
 const MED_ERRORS = {
-  prescription_not_active: 'This prescription is not active anymore.',
-  only_the_prescriber_can_void:
-    'Only the doctor who prescribed it can mark it as an error.',
-  doses_already_given: 'Doses were already given: stop it instead.',
+  get prescription_not_active() {
+    return t('med.rNotActive');
+  },
+  get only_the_prescriber_can_void() {
+    return t('med.rOnlyPrescriber');
+  },
+  get doses_already_given() {
+    return t('med.rDosesGiven');
+  },
 };
 
 /**
@@ -50,15 +56,15 @@ export function MedicationList({
       {me.role === 'doctor' &&
         (openEncounterId ? (
           <Button variant="secondary" onClick={() => setPrescribing(true)}>
-            Prescribe
+            {t('med.prescribe')}
           </Button>
         ) : (
-          <p className="text-xs text-slate-500">Start a visit to prescribe.</p>
+          <p className="text-xs text-slate-500">{t('med.startVisitFirst')}</p>
         ))}
       <QueryState
         query={prescriptions}
         isEmpty={(p) => p.length === 0}
-        empty="No active prescriptions."
+        empty={t('med.noActive')}
       >
         {(items) => (
           <ul className="divide-y divide-slate-100">
@@ -116,7 +122,7 @@ function PrescriptionItem({
           )}
           {rx.overrideReason && (
             <div className="mt-1">
-              <Badge tone="red">Allergy override</Badge>{' '}
+              <Badge tone="red">{t('med.allergyOverride')}</Badge>{' '}
               <span className="text-xs text-slate-500">
                 {rx.overrideReason}
               </span>
@@ -124,8 +130,8 @@ function PrescriptionItem({
           )}
           <div className="text-xs text-slate-400">
             {rx.lastGivenAt
-              ? `Last given ${timeAgo(rx.lastGivenAt)}`
-              : 'Not given yet'}{' '}
+              ? t('med.lastGiven', { ago: timeAgo(rx.lastGivenAt) })
+              : t('med.notGiven')}{' '}
             · <StaffName id={rx.prescribedBy} />
           </div>
         </div>
@@ -138,7 +144,7 @@ function PrescriptionItem({
             className="py-1"
             onClick={() => setDialog('dose')}
           >
-            Record dose
+            {t('med.recordDose')}
           </Button>
         )}
         <Button
@@ -147,7 +153,7 @@ function PrescriptionItem({
           onClick={() => setShowHistory((v) => !v)}
           aria-expanded={showHistory}
         >
-          {showHistory ? 'Hide history' : 'History'}
+          {showHistory ? t('med.hideHistory') : t('med.history')}
         </Button>
         {isDoctor && (
           <Button
@@ -155,7 +161,7 @@ function PrescriptionItem({
             className="py-1"
             onClick={() => setDialog('stop')}
           >
-            Stop
+            {t('med.stop')}
           </Button>
         )}
         {isDoctor && rx.prescribedBy === me.id && (
@@ -164,7 +170,7 @@ function PrescriptionItem({
             className="py-1 text-red-700"
             onClick={() => setDialog('error')}
           >
-            Mark as error
+            {t('med.markError')}
           </Button>
         )}
       </div>
@@ -182,8 +188,8 @@ function PrescriptionItem({
       )}
       {dialog === 'stop' && (
         <ReasonDialog
-          title={`Stop ${rx.medication.name}?`}
-          confirmLabel="Stop"
+          title={t('med.stopQ', { name: rx.medication.name })}
+          confirmLabel={t('med.stop')}
           pending={actions.stop.isPending}
           error={
             actions.stop.error
@@ -196,20 +202,20 @@ function PrescriptionItem({
               { id: rx.id, reason },
               {
                 onSuccess: () => {
-                  toast(`${rx.medication.name} stopped`);
+                  toast(t('med.stopped', { name: rx.medication.name }));
                   setDialog(null);
                 },
               },
             )
           }
         >
-          No more doses after this. The prescription stays in the history.
+          {t('med.stopText')}
         </ReasonDialog>
       )}
       {dialog === 'error' && (
         <ReasonDialog
-          title="Mark prescription as error"
-          confirmLabel="Mark as error"
+          title={t('med.markTitle')}
+          confirmLabel={t('med.markError')}
           danger
           pending={actions.markError.isPending}
           error={
@@ -223,15 +229,14 @@ function PrescriptionItem({
               { id: rx.id, reason },
               {
                 onSuccess: () => {
-                  toast('Prescription marked as error');
+                  toast(t('med.marked'));
                   setDialog(null);
                 },
               },
             )
           }
         >
-          For a prescription that should never have been made (wrong drug or
-          patient), only while no dose was given.
+          {t('med.markText')}
         </ReasonDialog>
       )}
     </li>
@@ -239,9 +244,24 @@ function PrescriptionItem({
 }
 
 const DOSE_BADGE = {
-  given: { label: 'Given', tone: 'green' },
-  skipped: { label: 'Skipped', tone: 'amber' },
-  refused: { label: 'Refused', tone: 'amber' },
+  given: {
+    get label() {
+      return t('med.given');
+    },
+    tone: 'green',
+  },
+  skipped: {
+    get label() {
+      return t('med.skipped');
+    },
+    tone: 'amber',
+  },
+  refused: {
+    get label() {
+      return t('med.refused');
+    },
+    tone: 'amber',
+  },
 } as const;
 
 function DoseHistory({
@@ -257,7 +277,7 @@ function DoseHistory({
       <QueryState
         query={doses}
         isEmpty={(d) => d.length === 0}
-        empty="No doses recorded yet."
+        empty={t('med.noDoses')}
       >
         {(items) => (
           <ul className="space-y-1 text-xs">

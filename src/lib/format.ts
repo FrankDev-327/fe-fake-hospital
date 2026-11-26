@@ -1,19 +1,25 @@
 import type { Staff } from '@/auth/types';
+import i18n, { t } from '@/i18n';
 
 /** Everyone in the hospital sees Zagreb time, whatever their computer is set to. */
 const TZ = 'Europe/Zagreb';
-const LOCALE = 'en-GB';
+/** Dates follow the chosen language (en-GB: 12 Mar 1948, hr-HR: 12. ožu 1948.) */
+const locale = () => (i18n.language === 'hr' ? 'hr-HR' : 'en-GB');
 
 export const displayName = (
   s: Pick<Staff, 'role' | 'firstName' | 'lastName'>,
-) => `${s.role === 'doctor' ? 'Dr. ' : ''}${s.firstName} ${s.lastName}`;
+) =>
+  `${s.role === 'doctor' ? `${t('common.dr')} ` : ''}${s.firstName} ${s.lastName}`;
 
-export const patientName = (p: { firstName: string; lastName: string }) =>
-  `${p.lastName}, ${p.firstName}`;
+/** "Matić, Josip". A newborn has no first name until the parents choose one. */
+export const patientName = (p: {
+  firstName: string | null;
+  lastName: string;
+}) => `${p.lastName}, ${p.firstName ?? 'newborn'}`;
 
 /** "2026-03-12" -> 12 Mar 1948. Dates of birth have no time zone: format them as written. */
 export const formatDate = (isoDate: string) =>
-  new Date(`${isoDate.slice(0, 10)}T12:00:00Z`).toLocaleDateString(LOCALE, {
+  new Date(`${isoDate.slice(0, 10)}T12:00:00Z`).toLocaleDateString(locale(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -21,7 +27,7 @@ export const formatDate = (isoDate: string) =>
   });
 
 export const formatDateTime = (iso: string) =>
-  new Date(iso).toLocaleString(LOCALE, {
+  new Date(iso).toLocaleString(locale(), {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -30,14 +36,14 @@ export const formatDateTime = (iso: string) =>
   });
 
 export const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString(LOCALE, {
+  new Date(iso).toLocaleTimeString(locale(), {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: TZ,
   });
 
 export const formatDay = (iso: string) =>
-  new Date(iso).toLocaleDateString(LOCALE, {
+  new Date(iso).toLocaleDateString(locale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -60,11 +66,11 @@ export function age(dateOfBirth: string, now = new Date()) {
 /** "5 min ago", "3 h ago", "2 days ago" */
 export function timeAgo(iso: string, now = Date.now()) {
   const minutes = Math.round((now - Date.parse(iso)) / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 1) return t('time.justNow');
+  if (minutes < 60) return t('time.min', { n: minutes });
   const hours = Math.round(minutes / 60);
-  if (hours < 48) return `${hours} h ago`;
-  return `${Math.round(hours / 24)} days ago`;
+  if (hours < 48) return t('time.h', { n: hours });
+  return t('time.days', { n: Math.round(hours / 24) });
 }
 
 export const SEX_LABEL: Record<string, string> = {
@@ -84,6 +90,6 @@ export function dueLabel(due: Date, now: number) {
   const dayOf = (t: number) => isoDay(new Date(t));
   if (dayOf(due.getTime()) === dayOf(now)) return time;
   if (dayOf(due.getTime()) === dayOf(now + 86_400_000))
-    return `tomorrow ${time}`;
+    return t('time.tomorrow', { time });
   return formatDateTime(due.toISOString());
 }

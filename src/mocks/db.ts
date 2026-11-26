@@ -1,3 +1,11 @@
+import { BEDS } from './data/admissions';
+import type { FakeBed } from './data/admissions';
+import {
+  DELIVERIES,
+  MATERNITY_ENCOUNTERS,
+  MATERNITY_OBSERVATIONS,
+} from './data/maternity';
+import type { FakeDelivery, FakeGrant } from './data/maternity';
 import { CONTACTS, DIAGNOSES, ENCOUNTERS, NOTES } from './data/charts';
 import type {
   FakeContact,
@@ -9,8 +17,13 @@ import { CRITICAL_ACKS, LAB_ORDERS, LAB_RESULTS } from './data/lab';
 import type { FakeLabOrder, FakeLabResult } from './data/lab';
 import { ADMINISTRATIONS, PRESCRIPTIONS } from './data/medication';
 import type { FakeAdministration, FakePrescription } from './data/medication';
-import { PATIENTS } from './data/patients';
-import type { FakePatient } from './data/patients';
+import {
+  NURSE_DOCTORS,
+  PATIENTS,
+  patientIdsFor,
+  RELATIONS,
+} from './data/patients';
+import type { FakePatient, FakeRelation } from './data/patients';
 import { OBSERVATIONS } from './data/vitals';
 import type { FakeObservation } from './data/vitals';
 
@@ -32,25 +45,33 @@ interface Db {
   labOrders: FakeLabOrder[];
   labResults: FakeLabResult[];
   criticalAcks: typeof CRITICAL_ACKS;
+  beds: FakeBed[];
+  deliveries: FakeDelivery[];
+  relations: FakeRelation[];
+  grants: FakeGrant[];
 }
 
 const STORAGE_KEY = 'mock-api:db';
 // bump when the shape of Db or the seed changes, so old saved data is dropped
-const VERSION = 2;
+const VERSION = 3;
 
 const seed = (): Db =>
   structuredClone({
     patients: PATIENTS,
     contacts: CONTACTS,
-    encounters: ENCOUNTERS,
+    encounters: [...ENCOUNTERS, ...MATERNITY_ENCOUNTERS],
     notes: NOTES,
     diagnoses: DIAGNOSES,
     prescriptions: PRESCRIPTIONS,
     administrations: ADMINISTRATIONS,
-    observations: OBSERVATIONS,
+    observations: [...OBSERVATIONS, ...MATERNITY_OBSERVATIONS],
     labOrders: LAB_ORDERS,
     labResults: LAB_RESULTS,
     criticalAcks: CRITICAL_ACKS,
+    beds: BEDS,
+    deliveries: DELIVERIES,
+    relations: RELATIONS,
+    grants: [],
   });
 
 function load(): Db {
@@ -90,3 +111,29 @@ export const patientById = (id: string) =>
 export const newId = () => crypto.randomUUID();
 
 export const nowIso = () => new Date().toISOString();
+
+/**
+ * Who a doctor/nurse may see: the fixed assignments + access made by births (the baby's
+ * primary doctor, and the delivery team for 60 min). Nurses: their doctors' patients OR their
+ * own rows (backend access_nurse_patient).
+ */
+export function accessiblePatientIds(staffId: string, role: string) {
+  if (role !== 'doctor' && role !== 'nurse') return [];
+  const now = Date.now();
+  const live = mockDb
+    .get()
+    .grants.filter((g) => !g.endsAt || Date.parse(g.endsAt) > now);
+  const myDoctors = role === 'nurse' ? (NURSE_DOCTORS[staffId] ?? []) : [];
+  return [
+    ...new Set([
+      ...patientIdsFor(staffId, role),
+      ...live
+        .filter(
+          (g) =>
+            g.staffId === staffId ||
+            (g.kind === 'primary' && myDoctors.includes(g.staffId)),
+        )
+        .map((g) => g.patientId),
+    ]),
+  ];
+}

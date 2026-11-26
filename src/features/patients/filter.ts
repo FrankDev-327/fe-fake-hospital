@@ -10,7 +10,7 @@ const normalize = (s: string) =>
 
 /** Every word typed must match the name or the MRN ("jos mat" finds Matić, Josip). */
 export function matchesPatient(p: PatientSummary, filter: string) {
-  const haystack = normalize(`${p.firstName} ${p.lastName} ${p.mrn}`);
+  const haystack = normalize(`${p.firstName ?? ''} ${p.lastName} ${p.mrn}`);
   return normalize(filter)
     .split(/\s+/)
     .every((word) => haystack.includes(word));

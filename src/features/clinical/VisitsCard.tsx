@@ -17,6 +17,7 @@ import {
   useEncounters,
   useStartEncounter,
 } from './api';
+import { t, zmsg } from '@/i18n';
 
 /** The patient's visits, newest first. Doctors can start a new one. */
 export function VisitsCard({
@@ -32,10 +33,10 @@ export function VisitsCard({
     <Card
       title={
         <span className="flex items-center justify-between">
-          Visits
+          {t('clinical.visits')}
           {canStart && (
             <Button className="py-1" onClick={() => setStarting(true)}>
-              Start visit
+              {t('clinical.startVisit')}
             </Button>
           )}
         </span>
@@ -44,7 +45,7 @@ export function VisitsCard({
       <QueryState
         query={encounters}
         isEmpty={(e) => e.length === 0}
-        empty="No visits yet."
+        empty={t('clinical.noVisits')}
       >
         {(items) => (
           <ul className="divide-y divide-slate-100 text-sm">
@@ -91,16 +92,15 @@ const StartVisitForm = z.object({
     .string()
     .trim()
     .max(2000)
-    .refine((r) => r === '' || r.length >= 2, 'At least 2 characters'),
+    .refine((r) => r === '' || r.length >= 2, zmsg('clinical.min2')),
 });
 type StartVisitForm = z.infer<typeof StartVisitForm>;
 
-const TYPE_OPTIONS = Object.entries(ENCOUNTER_TYPE_LABEL).map(
-  ([value, label]) => ({
+const typeOptions = () =>
+  Object.entries(ENCOUNTER_TYPE_LABEL).map(([value, label]) => ({
     value,
     label,
-  }),
-);
+  }));
 
 function StartVisitDialog({
   patientId,
@@ -122,7 +122,7 @@ function StartVisitDialog({
   });
 
   return (
-    <Modal title="Start visit" onClose={onClose}>
+    <Modal title={t('clinical.startVisit')} onClose={onClose}>
       <form
         noValidate
         className="space-y-4"
@@ -131,7 +131,7 @@ function StartVisitDialog({
             .mutateAsync({ type: v.type, reason: v.reason.trim() || null })
             .catch(() => null);
           if (!encounter) return;
-          toast('Visit started');
+          toast(t('clinical.visitStarted'));
           await navigate({
             to: '/patients/$patientId/visits/$encounterId',
             params: { patientId, encounterId: encounter.id },
@@ -140,23 +140,23 @@ function StartVisitDialog({
       >
         {start.error && <Alert>{errorMessage(start.error)}</Alert>}
         <SelectField
-          label="Type"
-          options={TYPE_OPTIONS}
+          label={t('clinical.type')}
+          options={typeOptions()}
           {...register('type')}
         />
         <TextAreaField
-          label="Reason for the visit"
+          label={t('clinical.reasonVisit')}
           rows={3}
-          hint="What brings the patient in (optional)"
+          hint={t('clinical.reasonVisitHint')}
           error={errors.reason?.message}
           {...register('reason')}
         />
         <div className="flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            Start visit
+            {t('clinical.startVisit')}
           </Button>
         </div>
       </form>

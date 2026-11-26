@@ -77,6 +77,19 @@ export const identityHandlers = [
     });
   }),
 
+  /**
+   * NOT IN THE BACKEND YET: the birth form picks the nurses who helped, but GET /staff is
+   * admin only (same gap as the doctors directory above).
+   */
+  http.get('/api/identity/staff/nurses', async ({ request }) => {
+    await delay();
+    const staff = guard(request, ['nurse', 'doctor']);
+    if (staff instanceof Response) return staff;
+    return HttpResponse.json({
+      items: STAFF.filter((s) => s.role === 'nurse' && s.isActive).map(toCard),
+    });
+  }),
+
   /** Admin: everyone, optional ?role=, keyset paging (one page is enough for fake data) */
   http.get('/api/identity/staff', async ({ request }) => {
     await delay();

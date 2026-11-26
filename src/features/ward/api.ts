@@ -5,6 +5,8 @@ export interface Ward {
   id: string;
   code: string;
   name: string;
+  /** delivery = labor rooms, maternity = mothers, nursery/nicu = babies' cots */
+  kind: 'general' | 'delivery' | 'maternity' | 'nursery' | 'nicu';
 }
 
 export interface Bed {

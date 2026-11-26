@@ -8,15 +8,19 @@ import { useVitalsActions } from './api';
 import type { VitalType } from './api';
 import { toReadings } from './readings';
 import type { Values } from './readings';
+import { t } from '@/i18n';
 
 /** One bedside round: fill what was measured, leave the rest empty. */
 export function RecordVitalsDialog({
   patientId,
   encounterId,
+  newborn = false,
   onClose,
 }: {
   patientId: string;
   encounterId: string;
+  /** adds the Apgar scores */
+  newborn?: boolean;
   onClose: () => void;
 }) {
   const { record } = useVitalsActions(patientId);
@@ -52,7 +56,7 @@ export function RecordVitalsDialog({
   };
 
   return (
-    <Modal title="Record vitals" onClose={onClose}>
+    <Modal title={t('vitals.record')} onClose={onClose}>
       <form
         noValidate
         className="space-y-4"
@@ -65,7 +69,12 @@ export function RecordVitalsDialog({
             {
               onSuccess: () => {
                 toast(
-                  `${readings.length} reading${readings.length > 1 ? 's' : ''} saved`,
+                  t(
+                    readings.length === 1
+                      ? 'vitals.saved_one'
+                      : 'vitals.saved_other',
+                    { count: readings.length },
+                  ),
                 );
                 onClose();
               },
@@ -74,34 +83,40 @@ export function RecordVitalsDialog({
         }}
       >
         <div className="grid grid-cols-2 gap-3">
-          {field('bp', 'BP systolic (mmHg)')}
-          {field('bp2', 'BP diastolic (mmHg)')}
-          {field('pulse', 'Pulse (/min)')}
-          {field('temperature', 'Temperature (°C)')}
-          {field('spo2', 'SpO2 (%)')}
-          {field('resp_rate', 'Breathing rate (/min)')}
-          {field('glucose', 'Blood sugar (mmol/L)')}
-          {field('pain', 'Pain (0-10)')}
-          {field('weight', 'Weight (kg)')}
-          {field('height', 'Height (cm)')}
+          {field('bp', t('vitals.fBpSys'))}
+          {field('bp2', t('vitals.fBpDia'))}
+          {field('pulse', t('vitals.fPulse'))}
+          {field('temperature', t('vitals.fTemp'))}
+          {field('spo2', t('vitals.fSpo2'))}
+          {field('resp_rate', t('vitals.fResp'))}
+          {field('glucose', t('vitals.fGlucose'))}
+          {field('pain', t('vitals.fPain'))}
+          {field('weight', t('vitals.fWeight'))}
+          {field('height', t('vitals.fHeight'))}
+          {newborn && (
+            <>
+              {field('apgar_1', t('vitals.apgarLabel', { minute: 1 }))}
+              {field('apgar_5', t('vitals.apgarLabel', { minute: 5 }))}
+              {field('apgar_10', t('vitals.apgarLabel', { minute: 10 }))}
+            </>
+          )}
         </div>
         {showErrors && !readings.length && !Object.keys(errors).length && (
-          <Alert>Fill in at least one value.</Alert>
+          <Alert>{t('vitals.fillOne')}</Alert>
         )}
         {record.error && (
           <Alert>
             {errorMessage(record.error, {
-              encounter_closed:
-                'The visit is closed: vitals go into an open visit.',
+              encounter_closed: t('vitals.closed'),
             })}
           </Alert>
         )}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" disabled={record.isPending}>
-            Save
+            {t('vitals.save')}
           </Button>
         </div>
       </form>

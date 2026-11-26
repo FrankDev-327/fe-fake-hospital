@@ -7,10 +7,21 @@ import { formatDateTime, timeAgo } from '@/lib/format';
 import { useLabTests, useLabWorkActions, useWorklist } from './api';
 import type { WorklistItem, WorklistStatus } from './api';
 import { EnterResultsDialog } from './EnterResultsDialog';
+import { t } from '@/i18n';
 
 const TABS: { status: WorklistStatus; label: string }[] = [
-  { status: 'ordered', label: 'To collect' },
-  { status: 'collected', label: 'Collected, waiting for results' },
+  {
+    status: 'ordered',
+    get label() {
+      return t('lab.toCollect');
+    },
+  },
+  {
+    status: 'collected',
+    get label() {
+      return t('lab.waiting');
+    },
+  },
 ];
 
 /** The lab sees orders and patient ids only, never charts. */
@@ -26,24 +37,21 @@ export function LabPage() {
 
   return (
     <>
-      <PageHeader
-        title="Lab worklist"
-        subtitle="Urgent first, then oldest first"
-      />
+      <PageHeader title={t('lab.worklist')} subtitle={t('lab.worklistSub')} />
       <div role="tablist" className="mb-4 flex gap-1 border-b border-slate-200">
-        {TABS.map((t) => (
+        {TABS.map((tab) => (
           <button
-            key={t.status}
+            key={tab.status}
             role="tab"
-            aria-selected={t.status === status}
-            onClick={() => setStatus(t.status)}
+            aria-selected={tab.status === status}
+            onClick={() => setStatus(tab.status)}
             className={`-mb-px border-b-2 px-4 py-2 text-sm ${
-              t.status === status
+              tab.status === status
                 ? 'border-teal-700 font-medium text-teal-800'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -53,24 +61,23 @@ export function LabPage() {
           className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
         >
           {errorMessage(collect.error, {
-            order_not_waiting_for_collection:
-              'Already collected (maybe on the ward).',
+            order_not_waiting_for_collection: t('lab.alreadyCollected'),
           })}
         </div>
       )}
       <QueryState
         query={worklist}
         isEmpty={(items) => items.length === 0}
-        empty="Nothing here."
+        empty={t('lab.nothing')}
       >
         {(items) => (
           <Table>
             <thead>
               <tr>
-                <Th>Priority</Th>
-                <Th>Tests</Th>
-                <Th>Order</Th>
-                <Th>Patient</Th>
+                <Th>{t('lab.priority')}</Th>
+                <Th>{t('lab.tests')}</Th>
+                <Th>{t('lab.orderCol')}</Th>
+                <Th>{t('lab.patient')}</Th>
                 <Th>{status === 'ordered' ? 'Ordered' : 'Collected'}</Th>
                 <Th />
               </tr>
@@ -85,9 +92,9 @@ export function LabPage() {
                   <tr key={o.id}>
                     <Td>
                       {o.priority === 'urgent' ? (
-                        <Badge tone="red">Urgent</Badge>
+                        <Badge tone="red">{t('lab.urgent')}</Badge>
                       ) : (
-                        <Badge>Routine</Badge>
+                        <Badge>{t('lab.routine')}</Badge>
                       )}
                     </Td>
                     <Td>
@@ -120,11 +127,11 @@ export function LabPage() {
                           disabled={collect.isPending}
                           onClick={() =>
                             collect.mutate(o.id, {
-                              onSuccess: () => toast('Sample collected'),
+                              onSuccess: () => toast(t('lab.collectedToast')),
                             })
                           }
                         >
-                          Collected
+                          {t('lab.collected')}
                         </Button>
                       ) : (
                         <Button
@@ -132,7 +139,7 @@ export function LabPage() {
                           disabled={!catalog.data}
                           onClick={() => setEntering(o)}
                         >
-                          Enter results
+                          {t('lab.enterResults')}
                         </Button>
                       )}
                     </Td>

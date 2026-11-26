@@ -1,4 +1,5 @@
 import { ApiError } from './api';
+import { t } from '@/i18n';
 
 /**
  * Turns an API error into a sentence for the user. Each screen passes the backend error codes
@@ -9,12 +10,11 @@ export function errorMessage(
   error: unknown,
   messages: Record<string, string> = {},
 ): string {
-  if (!(error instanceof ApiError)) return 'Something went wrong. Try again.';
+  if (!(error instanceof ApiError)) return t('errors.generic');
   if (error.code && messages[error.code]) return messages[error.code]!;
-  if (error.isUnavailable)
-    return 'This service is unavailable right now. Try again in a moment.';
-  if (error.status === 403) return "You're not allowed to do this.";
-  if (error.status === 404) return 'Not found (it may have been removed).';
-  if (error.code === 'validation_failed') return 'Some fields are not valid.';
-  return 'Something went wrong. Try again.';
+  if (error.isUnavailable) return t('errors.unavailable');
+  if (error.status === 403) return t('errors.forbidden');
+  if (error.status === 404) return t('errors.notFound');
+  if (error.code === 'validation_failed') return t('errors.invalid');
+  return t('errors.generic');
 }

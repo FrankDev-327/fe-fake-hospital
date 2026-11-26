@@ -1,5 +1,6 @@
-import { VITAL_ORDER, VITALS } from './api';
+import { isScore, VITAL_ORDER, VITALS } from './api';
 import type { Reading, VitalType } from './api';
+import { t } from '@/i18n';
 
 /** Fields of the form: every vital sign, plus the diastolic for BP */
 export type Values = Partial<Record<VitalType | 'bp2', string>>;
@@ -18,8 +19,8 @@ export function toReadings(v: Values): { readings: Reading[]; errors: Values } {
       errors[type] = `${min} to ${max}`;
       continue;
     }
-    if (type === 'pain' && !Number.isInteger(value)) {
-      errors.pain = 'Whole number 0 to 10';
+    if (isScore(type) && !Number.isInteger(value)) {
+      errors[type] = t('vitals.whole');
       continue;
     }
     if (type === 'bp') {
@@ -31,7 +32,7 @@ export function toReadings(v: Values): { readings: Reading[]; errors: Values } {
         value2 > 200 ||
         value2 >= value
       ) {
-        errors.bp2 = 'Lower than systolic (20 to 200)';
+        errors.bp2 = t('vitals.bp2');
         continue;
       }
       readings.push({ type, value, value2 });

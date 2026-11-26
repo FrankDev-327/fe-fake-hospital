@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { ApiError } from '@/lib/api';
+import { t } from '@/i18n';
 
 /** Small building blocks every page uses. */
 
@@ -123,7 +124,7 @@ export function QueryState<T>({
 export function Loading() {
   return (
     <div role="status" className="py-6 text-center text-sm text-slate-500">
-      Loading…
+      {t('common.loading')}
     </div>
   );
 }
@@ -131,10 +132,10 @@ export function Loading() {
 export function ErrorMessage({ error }: { error: unknown }) {
   const message =
     error instanceof ApiError && error.isUnavailable
-      ? 'This service is unavailable right now. The rest of the app still works.'
+      ? t('errors.unavailableRest')
       : error instanceof ApiError && error.status === 404
-        ? 'Not found.'
-        : 'Something went wrong loading this.';
+        ? t('errors.notFoundShort')
+        : t('errors.loadFailed');
   return (
     <div
       role="alert"

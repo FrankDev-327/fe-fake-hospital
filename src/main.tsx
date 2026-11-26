@@ -7,6 +7,7 @@ import { ToastProvider } from '@/components/toast';
 import { ApiError } from '@/lib/api';
 import { MOCK_API } from '@/mocks/enabled';
 import './index.css';
+import '@/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {

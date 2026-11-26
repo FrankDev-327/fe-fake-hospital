@@ -6,6 +6,7 @@ import { QueryState } from '@/components/ui';
 import { useToast } from '@/components/toast-context';
 import { errorMessage } from '@/lib/errors';
 import { rangeText, useLabActions, useLabTests } from './api';
+import { t } from '@/i18n';
 
 /** Doctor: pick tests from the catalog, routine or urgent. */
 export function OrderLabDialog({
@@ -28,13 +29,13 @@ export function OrderLabDialog({
     );
 
   return (
-    <Modal title="Order lab tests" onClose={onClose}>
+    <Modal title={t('lab.order')} onClose={onClose}>
       <div className="space-y-4">
         <QueryState query={catalog}>
           {(tests) => (
             <fieldset>
               <legend className="mb-2 text-sm font-medium text-slate-700">
-                Tests
+                {t('lab.tests')}
               </legend>
               <div className="grid max-h-72 grid-cols-2 gap-1 overflow-y-auto">
                 {tests.map((t) => (
@@ -61,7 +62,7 @@ export function OrderLabDialog({
           )}
         </QueryState>
         <fieldset className="flex gap-4 text-sm">
-          <legend className="sr-only">Priority</legend>
+          <legend className="sr-only">{t('lab.priority')}</legend>
           <label className="flex items-center gap-2">
             <input
               type="radio"
@@ -69,7 +70,7 @@ export function OrderLabDialog({
               checked={priority === 'routine'}
               onChange={() => setPriority('routine')}
             />
-            Routine
+            {t('lab.routine')}
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -78,21 +79,20 @@ export function OrderLabDialog({
               checked={priority === 'urgent'}
               onChange={() => setPriority('urgent')}
             />
-            Urgent
+            {t('lab.urgent')}
           </label>
         </fieldset>
         {order.error && (
           <Alert>
             {errorMessage(order.error, {
-              encounter_closed: 'The visit is closed: order in an open visit.',
-              unknown_lab_tests:
-                'One of the tests is not in the catalog anymore.',
+              encounter_closed: t('lab.oClosed'),
+              unknown_lab_tests: t('lab.oUnknown'),
             })}
           </Alert>
         )}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             disabled={!picked.length || order.isPending}
@@ -102,7 +102,12 @@ export function OrderLabDialog({
                 {
                   onSuccess: () => {
                     toast(
-                      `${picked.length} test${picked.length > 1 ? 's' : ''} ordered`,
+                      t(
+                        picked.length === 1
+                          ? 'lab.ordered_one'
+                          : 'lab.ordered_other',
+                        { count: picked.length },
+                      ),
                     );
                     onClose();
                   },

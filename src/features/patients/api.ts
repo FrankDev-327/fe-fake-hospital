@@ -4,7 +4,8 @@ import { api } from '@/lib/api';
 export interface PatientSummary {
   id: string;
   mrn: string;
-  firstName: string;
+  /** null = newborn without a name yet (show it with patientName()) */
+  firstName: string | null;
   lastName: string;
   sex: string;
   dateOfBirth: string;
@@ -18,6 +19,8 @@ export interface Patient extends PatientSummary {
   address: string | null;
   bloodType: string | null;
   deceasedAt: string | null;
+  /** exact time of birth, only for babies born here */
+  bornAt?: string | null;
   version: number;
 }
 

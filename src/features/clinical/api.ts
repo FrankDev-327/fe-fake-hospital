@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { BadgeTone } from '@/components/ui';
+import { t } from '@/i18n';
 
 export type AllergySeverity =
   'mild' | 'moderate' | 'severe' | 'life_threatening';
@@ -19,10 +20,30 @@ export const SEVERITY: Record<
   AllergySeverity,
   { label: string; tone: BadgeTone }
 > = {
-  mild: { label: 'Mild', tone: 'gray' },
-  moderate: { label: 'Moderate', tone: 'amber' },
-  severe: { label: 'Severe', tone: 'red' },
-  life_threatening: { label: 'Life-threatening', tone: 'red' },
+  mild: {
+    get label() {
+      return t('clinical.sevMild');
+    },
+    tone: 'gray',
+  },
+  moderate: {
+    get label() {
+      return t('clinical.sevModerate');
+    },
+    tone: 'amber',
+  },
+  severe: {
+    get label() {
+      return t('clinical.sevSevere');
+    },
+    tone: 'red',
+  },
+  life_threatening: {
+    get label() {
+      return t('clinical.sevLife');
+    },
+    tone: 'red',
+  },
 };
 
 export const useAllergies = (patientId: string, enabled = true) =>
@@ -54,18 +75,39 @@ export interface Encounter {
 }
 
 export const ENCOUNTER_TYPE_LABEL: Record<EncounterType, string> = {
-  outpatient: 'Outpatient',
-  emergency: 'Emergency',
-  inpatient: 'Inpatient',
+  get outpatient() {
+    return t('clinical.typeOutpatient');
+  },
+  get emergency() {
+    return t('clinical.typeEmergency');
+  },
+  get inpatient() {
+    return t('clinical.typeInpatient');
+  },
 };
 
 export const ENCOUNTER_STATUS: Record<
   EncounterStatus,
   { label: string; tone: BadgeTone }
 > = {
-  in_progress: { label: 'Open', tone: 'blue' },
-  finished: { label: 'Finished', tone: 'green' },
-  cancelled: { label: 'Cancelled', tone: 'gray' },
+  in_progress: {
+    get label() {
+      return t('clinical.encOpen');
+    },
+    tone: 'blue',
+  },
+  finished: {
+    get label() {
+      return t('clinical.encFinished');
+    },
+    tone: 'green',
+  },
+  cancelled: {
+    get label() {
+      return t('clinical.encCancelled');
+    },
+    tone: 'gray',
+  },
 };
 
 const chart = (patientId: string) => `/clinical/patients/${patientId}`;
@@ -164,10 +206,18 @@ export interface Note {
 }
 
 export const NOTE_TYPE_LABEL: Record<NoteType, string> = {
-  soap: 'Doctor note (SOAP)',
-  nursing: 'Nursing note',
-  procedure: 'Procedure note',
-  discharge: 'Discharge note',
+  get soap() {
+    return t('clinical.noteSoap');
+  },
+  get nursing() {
+    return t('clinical.noteNursing');
+  },
+  get procedure() {
+    return t('clinical.noteProcedure');
+  },
+  get discharge() {
+    return t('clinical.noteDischarge');
+  },
 };
 
 /** Which note types each role writes (same rule as the backend) */
@@ -180,9 +230,12 @@ export const NOTE_TYPES_BY_ROLE: Partial<Record<string, NoteType[]>> = {
 export const NOTE_TEMPLATE: Record<NoteType, string> = {
   soap: 'S: \nO: \nA: \nP: ',
   nursing: '',
-  procedure: 'Procedure: \nIndication: \nFindings: \nComplications: ',
-  discharge:
-    'Diagnosis: \nCourse in hospital: \nMedication at discharge: \nFollow-up: ',
+  get procedure() {
+    return t('clinical.tplProcedure');
+  },
+  get discharge() {
+    return t('clinical.tplDischarge');
+  },
 };
 
 export const useNotes = (patientId: string, encounterId: string) =>
@@ -283,10 +336,30 @@ export const DIAGNOSIS_STATUS: Record<
   DiagnosisStatus,
   { label: string; tone: BadgeTone }
 > = {
-  provisional: { label: 'Provisional', tone: 'amber' },
-  confirmed: { label: 'Confirmed', tone: 'teal' },
-  resolved: { label: 'Resolved', tone: 'green' },
-  entered_in_error: { label: 'Entered in error', tone: 'gray' },
+  provisional: {
+    get label() {
+      return t('clinical.dxProvisional');
+    },
+    tone: 'amber',
+  },
+  confirmed: {
+    get label() {
+      return t('clinical.dxConfirmed');
+    },
+    tone: 'teal',
+  },
+  resolved: {
+    get label() {
+      return t('clinical.dxResolved');
+    },
+    tone: 'green',
+  },
+  entered_in_error: {
+    get label() {
+      return t('clinical.dxError');
+    },
+    tone: 'gray',
+  },
 };
 
 export interface Icd10Code {

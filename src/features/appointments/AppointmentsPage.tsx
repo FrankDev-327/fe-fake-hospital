@@ -5,6 +5,7 @@ import { useNow } from '@/hooks/useNow';
 import { formatDay, formatTime, isoDay, patientName } from '@/lib/format';
 import { STATUS, useDoctors, useSchedule, VISIT_LABEL } from './api';
 import type { Appointment } from './api';
+import { t } from '@/i18n';
 
 const DAYS_SHOWN = 7;
 
@@ -25,13 +26,13 @@ export function AppointmentsPage() {
   return (
     <>
       <PageHeader
-        title={isDoctor ? 'My appointments' : 'Appointments'}
-        subtitle={`Next ${DAYS_SHOWN} days`}
+        title={isDoctor ? t('appt.mine') : t('appt.title')}
+        subtitle={t('appt.next', { days: DAYS_SHOWN })}
         actions={
           !isDoctor &&
           doctors.data && (
             <label className="text-sm">
-              <span className="mr-2 text-slate-600">Doctor</span>
+              <span className="mr-2 text-slate-600">{t('appt.doctor')}</span>
               <select
                 value={doctorId}
                 onChange={(e) => setPicked(e.target.value)}
@@ -39,7 +40,7 @@ export function AppointmentsPage() {
               >
                 {doctors.data.map((d) => (
                   <option key={d.id} value={d.id}>
-                    Dr. {d.firstName} {d.lastName}
+                    {t('common.dr')} {d.firstName} {d.lastName}
                   </option>
                 ))}
               </select>
@@ -50,7 +51,7 @@ export function AppointmentsPage() {
       <QueryState
         query={schedule}
         isEmpty={(items) => items.length === 0}
-        empty="No appointments in the next days."
+        empty={t('appt.none')}
       >
         {(items) => <Schedule items={items} />}
       </QueryState>

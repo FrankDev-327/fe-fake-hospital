@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { BadgeTone } from '@/components/ui';
+import { t } from '@/i18n';
 
 export interface Appointment {
   id: string;
@@ -21,20 +22,48 @@ export interface DoctorCard {
 }
 
 export const VISIT_LABEL: Record<Appointment['visitType'], string> = {
-  first_visit: 'First visit',
-  follow_up: 'Follow-up',
-  procedure: 'Procedure',
-  consultation: 'Consultation',
+  get first_visit() {
+    return t('appt.first');
+  },
+  get follow_up() {
+    return t('appt.followUp');
+  },
+  get procedure() {
+    return t('appt.procedure');
+  },
+  get consultation() {
+    return t('appt.consult');
+  },
 };
 
 export const STATUS: Record<
   Appointment['status'],
   { label: string; tone: BadgeTone }
 > = {
-  booked: { label: 'Booked', tone: 'blue' },
-  completed: { label: 'Done', tone: 'green' },
-  cancelled: { label: 'Cancelled', tone: 'gray' },
-  no_show: { label: 'No-show', tone: 'amber' },
+  booked: {
+    get label() {
+      return t('appt.booked');
+    },
+    tone: 'blue',
+  },
+  completed: {
+    get label() {
+      return t('appt.done');
+    },
+    tone: 'green',
+  },
+  cancelled: {
+    get label() {
+      return t('appt.cancelled');
+    },
+    tone: 'gray',
+  },
+  no_show: {
+    get label() {
+      return t('appt.noShow');
+    },
+    tone: 'amber',
+  },
 };
 
 /** from/to: "YYYY-MM-DD", both included */

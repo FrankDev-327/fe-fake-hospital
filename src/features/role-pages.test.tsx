@@ -12,7 +12,7 @@ describe('doctor (Dr. Ana Kovač)', () => {
   it('sees only her own patients', async () => {
     renderApp('/patients', { as: 'doctor' });
     expect(await screen.findByText('Matić, Josip')).toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 6); // header + 6 patients
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 8); // header + 6 patients + mother and baby
     expect(screen.queryByText('Kovačević, Branko')).not.toBeInTheDocument();
   });
 

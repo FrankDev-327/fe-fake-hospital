@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { t } from '@/i18n';
 
 export interface Prescription {
   id: string;
@@ -89,14 +90,26 @@ export const ROUTES = [
 ] as const;
 
 export const ROUTE_LABEL: Record<string, string> = {
-  oral: 'oral',
+  get oral() {
+    return t('med.rtOral');
+  },
   iv: 'IV',
   im: 'IM',
-  sc: 'subcut.',
-  topical: 'on the skin',
-  inhaled: 'inhaled',
-  rectal: 'rectal',
-  sublingual: 'under the tongue',
+  get sc() {
+    return t('med.rtSc');
+  },
+  get topical() {
+    return t('med.rtTopical');
+  },
+  get inhaled() {
+    return t('med.rtInhaled');
+  },
+  get rectal() {
+    return t('med.rtRectal');
+  },
+  get sublingual() {
+    return t('med.rtSub');
+  },
 };
 
 /** "1.000" -> "1", "0.250" -> "0.25" */
@@ -105,7 +118,9 @@ export const formatAmount = (amount: string | number) => String(Number(amount));
 /** "1 g IV every 24 h" / "1000 mg oral as needed" */
 export const doseText = (p: Prescription) =>
   `${formatAmount(p.doseAmount)} ${p.doseUnit} ${ROUTE_LABEL[p.route] ?? p.route} ${
-    p.asNeeded ? 'as needed' : `every ${p.intervalHours} h`
+    p.asNeeded
+      ? t('med.asNeededLower')
+      : t('med.everyH', { hours: p.intervalHours })
   }`;
 
 /** When the next scheduled dose is due (null for "as needed"; never given = due from the start). */

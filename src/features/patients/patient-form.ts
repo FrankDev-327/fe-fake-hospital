@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zmsg } from '@/i18n';
 import { isValidOib } from '@/lib/oib';
 import { BLOOD_TYPES, SEXES } from './api';
 import type { Patient, PatientInput } from './api';
@@ -7,7 +8,10 @@ import type { Patient, PatientInput } from './api';
 export const today = () => new Date().toISOString().slice(0, 10);
 
 /** Optional text: '' in the form means "not given" */
-const optionalText = (rule: z.ZodType<string>, message: string) =>
+const optionalText = (
+  rule: z.ZodType<string>,
+  message: ReturnType<typeof zmsg>,
+) =>
   z
     .string()
     .trim()
@@ -18,27 +22,27 @@ const optionalText = (rule: z.ZodType<string>, message: string) =>
  * the backend wants (null for empty). Rules match the backend's RegisterPatientBody.
  */
 export const PatientFormSchema = z.object({
-  firstName: z.string().trim().min(1, 'Required').max(100),
-  lastName: z.string().trim().min(1, 'Required').max(100),
+  firstName: z.string().trim().min(1, zmsg('common.required')).max(100),
+  lastName: z.string().trim().min(1, zmsg('common.required')).max(100),
   dateOfBirth: z
     .string()
-    .min(1, 'Required')
-    .refine((d) => d >= '1900-01-01' && d <= today(), 'Between 1900 and today'),
+    .min(1, zmsg('common.required'))
+    .refine(
+      (d) => d >= '1900-01-01' && d <= today(),
+      zmsg('patients.dobRange'),
+    ),
   sex: z.enum(SEXES),
   oib: z
     .string()
     .trim()
-    .refine(
-      (v) => v === '' || isValidOib(v),
-      'Not a valid OIB (11 digits, check digit)',
-    ),
+    .refine((v) => v === '' || isValidOib(v), zmsg('patients.oibInvalid')),
   mbo: z
     .string()
     .trim()
-    .refine((v) => v === '' || /^\d{9}$/.test(v), 'MBO has 9 digits'),
-  email: optionalText(z.email(), 'Not a valid email'),
-  phone: optionalText(z.string().min(6).max(30), '6 to 30 characters'),
-  address: optionalText(z.string().min(3).max(300), 'At least 3 characters'),
+    .refine((v) => v === '' || /^\d{9}$/.test(v), zmsg('patients.mbo9')),
+  email: optionalText(z.email(), zmsg('patients.emailInvalid')),
+  phone: optionalText(z.string().min(6).max(30), zmsg('patients.phoneLen')),
+  address: optionalText(z.string().min(3).max(300), zmsg('common.min3')),
   bloodType: z.enum(['', ...BLOOD_TYPES]),
 });
 export type PatientFormValues = z.infer<typeof PatientFormSchema>;

@@ -6,6 +6,7 @@ import type { PatientSummary } from '@/features/patients/api';
 import { patientName, timeAgo } from '@/lib/format';
 import { useBedBoard, useWards } from './api';
 import type { Bed } from './api';
+import { t } from '@/i18n';
 
 export function WardPage() {
   const wards = useWards();
@@ -19,8 +20,8 @@ export function WardPage() {
   return (
     <>
       <PageHeader
-        title="Ward board"
-        subtitle="Names are shown only for your own patients"
+        title={t('ward.title')}
+        subtitle={t('ward.sub')}
         actions={
           wards.data && (
             <div
@@ -65,8 +66,10 @@ function BedGrid({
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-600">
-        {free} of {beds.filter((b) => b.state !== 'out_of_service').length} beds
-        free
+        {t('ward.freeOf', {
+          free,
+          total: beds.filter((b) => b.state !== 'out_of_service').length,
+        })}
       </p>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {rooms.map((room) => (
@@ -75,7 +78,7 @@ function BedGrid({
             className="rounded-lg border border-slate-200 bg-white p-3"
           >
             <h2 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">
-              Room {room}
+              {t('ward.room', { room })}
             </h2>
             <ul className="space-y-2">
               {beds
@@ -109,10 +112,12 @@ function BedCard({ bed, patient }: { bed: Bed; patient?: PatientSummary }) {
   return (
     <li className={`rounded-md border px-3 py-2 text-sm ${tone}`}>
       <div className="flex items-center justify-between">
-        <span className="font-medium">Bed {bed.bed}</span>
-        {bed.state === 'free' && <Badge tone="green">Free</Badge>}
-        {bed.state === 'out_of_service' && <Badge>Out of service</Badge>}
-        {bed.state === 'occupied' && !patient && <Badge>Occupied</Badge>}
+        <span className="font-medium">{t('ward.bed', { bed: bed.bed })}</span>
+        {bed.state === 'free' && <Badge tone="green">{t('ward.free')}</Badge>}
+        {bed.state === 'out_of_service' && <Badge>{t('ward.oos')}</Badge>}
+        {bed.state === 'occupied' && !patient && (
+          <Badge>{t('ward.occupied')}</Badge>
+        )}
       </div>
       {patient && bed.patientId && (
         <div className="mt-1">
@@ -125,7 +130,7 @@ function BedCard({ bed, patient }: { bed: Bed; patient?: PatientSummary }) {
           </Link>
           {bed.since && (
             <div className="text-xs text-slate-500">
-              Admitted {timeAgo(bed.since)}
+              {t('ward.admitted', { ago: timeAgo(bed.since) })}
             </div>
           )}
         </div>

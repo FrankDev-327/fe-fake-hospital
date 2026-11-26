@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { t } from '@/i18n';
 
 export type VitalType =
   | 'bp'
@@ -10,7 +11,11 @@ export type VitalType =
   | 'weight'
   | 'height'
   | 'pain'
-  | 'glucose';
+  | 'glucose'
+  /** newborns: Apgar score 1, 5 and 10 minutes after birth */
+  | 'apgar_1'
+  | 'apgar_5'
+  | 'apgar_10';
 
 export interface Observation {
   id: string;
@@ -30,6 +35,21 @@ export interface Observation {
  * Everything the UI needs per vital sign. min/max are the backend's PLAUSIBLE ranges (catch
  * "375" typed for 37.5), not normal ranges: a real alarming value must still be recordable.
  */
+function apgar(minute: number) {
+  return {
+    get label() {
+      return t('vitals.apgarLabel', { minute });
+    },
+    get short() {
+      return t('vitals.apgarShort', { minute });
+    },
+    unit: '/10',
+    min: 0,
+    max: 10,
+    step: '1',
+  };
+}
+
 export const VITALS: Record<
   VitalType,
   {
@@ -42,39 +62,57 @@ export const VITALS: Record<
   }
 > = {
   bp: {
-    label: 'Blood pressure',
-    short: 'BP',
+    get label() {
+      return t('vitals.lBp');
+    },
+    get short() {
+      return t('vitals.sBp');
+    },
     unit: 'mmHg',
     min: 40,
     max: 300,
     step: '1',
   },
   pulse: {
-    label: 'Pulse',
-    short: 'Pulse',
+    get label() {
+      return t('vitals.lPulse');
+    },
+    get short() {
+      return t('vitals.lPulse');
+    },
     unit: '/min',
     min: 20,
     max: 300,
     step: '1',
   },
   resp_rate: {
-    label: 'Breathing rate',
-    short: 'Resp.',
+    get label() {
+      return t('vitals.lResp');
+    },
+    get short() {
+      return t('vitals.sResp');
+    },
     unit: '/min',
     min: 4,
     max: 80,
     step: '1',
   },
   temperature: {
-    label: 'Temperature',
-    short: 'Temp.',
+    get label() {
+      return t('vitals.lTemp');
+    },
+    get short() {
+      return t('vitals.sTemp');
+    },
     unit: '°C',
     min: 25,
     max: 45,
     step: '0.1',
   },
   spo2: {
-    label: 'Oxygen saturation',
+    get label() {
+      return t('vitals.lSpo2');
+    },
     short: 'SpO2',
     unit: '%',
     min: 50,
@@ -82,38 +120,63 @@ export const VITALS: Record<
     step: '1',
   },
   weight: {
-    label: 'Weight',
-    short: 'Weight',
+    get label() {
+      return t('vitals.lWeight');
+    },
+    get short() {
+      return t('vitals.lWeight');
+    },
     unit: 'kg',
     min: 0.3,
     max: 500,
     step: '0.1',
   },
   height: {
-    label: 'Height',
-    short: 'Height',
+    get label() {
+      return t('vitals.lHeight');
+    },
+    get short() {
+      return t('vitals.lHeight');
+    },
     unit: 'cm',
     min: 20,
     max: 250,
     step: '1',
   },
   pain: {
-    label: 'Pain (0-10)',
-    short: 'Pain',
+    get label() {
+      return t('vitals.lPain');
+    },
+    get short() {
+      return t('vitals.sPain');
+    },
     unit: '/10',
     min: 0,
     max: 10,
     step: '1',
   },
   glucose: {
-    label: 'Blood sugar',
-    short: 'Glucose',
+    get label() {
+      return t('vitals.lGlucose');
+    },
+    get short() {
+      return t('vitals.sGlucose');
+    },
     unit: 'mmol/L',
     min: 0.5,
     max: 50,
     step: '0.1',
   },
+  apgar_1: apgar(1),
+  apgar_5: apgar(5),
+  apgar_10: apgar(10),
 };
+export const APGAR_TYPES: VitalType[] = ['apgar_1', 'apgar_5', 'apgar_10'];
+
+/** Whole numbers only (scores) */
+export const isScore = (t: VitalType) =>
+  t === 'pain' || APGAR_TYPES.includes(t);
+
 export const VITAL_ORDER: VitalType[] = [
   'bp',
   'pulse',
@@ -124,6 +187,7 @@ export const VITAL_ORDER: VitalType[] = [
   'pain',
   'weight',
   'height',
+  ...APGAR_TYPES,
 ];
 
 /** "124/76 mmHg", "37.4 °C" */

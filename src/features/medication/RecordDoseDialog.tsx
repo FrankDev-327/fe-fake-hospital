@@ -10,11 +10,18 @@ import { errorMessage } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
 import { doseText, formatAmount, useMedicationActions } from './api';
 import type { Administration, Prescription } from './api';
+import { t } from '@/i18n';
 
 const STATUS_LABEL: Record<Administration['status'], string> = {
-  given: 'Given',
-  skipped: 'Skipped',
-  refused: 'Refused by patient',
+  get given() {
+    return t('med.given');
+  },
+  get skipped() {
+    return t('med.skipped');
+  },
+  get refused() {
+    return t('med.refusedLong');
+  },
 };
 
 /**
@@ -54,7 +61,7 @@ export function RecordDoseDialog({
   const amountOk = status !== 'given' || Number(amount) > 0;
 
   return (
-    <Modal title="Record dose" onClose={onClose}>
+    <Modal title={t('med.recordDose')} onClose={onClose}>
       <div className="space-y-4 text-sm">
         <div className="rounded-md bg-slate-50 px-3 py-2">
           <div className="font-medium">
@@ -69,7 +76,7 @@ export function RecordDoseDialog({
         </div>
 
         <fieldset className="flex gap-4">
-          <legend className="sr-only">What happened</legend>
+          <legend className="sr-only">{t('med.whatHappened')}</legend>
           {(Object.keys(STATUS_LABEL) as Administration['status'][]).map(
             (s) => (
               <label key={s} className="flex items-center gap-2">
@@ -87,7 +94,7 @@ export function RecordDoseDialog({
 
         {status === 'given' && (
           <TextField
-            label={`Dose given (${rx.doseUnit})`}
+            label={t('med.doseGiven', { unit: rx.doseUnit })}
             type="number"
             min="0"
             step="any"
@@ -95,7 +102,10 @@ export function RecordDoseDialog({
             onChange={(e) => setAmount(e.target.value)}
             error={
               differs
-                ? `Ordered ${formatAmount(rx.doseAmount)} ${rx.doseUnit}: explain in the note`
+                ? t('med.ordered', {
+                    amount: formatAmount(rx.doseAmount),
+                    unit: rx.doseUnit,
+                  })
                 : undefined
             }
           />
@@ -106,10 +116,12 @@ export function RecordDoseDialog({
             role="alert"
             className="space-y-2 rounded-md border-2 border-amber-300 bg-amber-50 p-3 text-amber-900"
           >
-            <strong>Too soon</strong>
+            <strong>{t('med.tooSoon')}</strong>
             <p>
-              Last given {formatDateTime(tooSoon.lastGivenAt)}, ordered every{' '}
-              {tooSoon.intervalHours} h.
+              {t('med.tooSoonText', {
+                at: formatDateTime(tooSoon.lastGivenAt),
+                hours: tooSoon.intervalHours,
+              })}
             </p>
             <label className="flex items-center gap-2">
               <input
@@ -117,38 +129,32 @@ export function RecordDoseDialog({
                 checked={confirmEarly}
                 onChange={(e) => setConfirmEarly(e.target.checked)}
               />
-              Give it early anyway (explain in the note)
+              {t('med.early')}
             </label>
           </div>
         )}
 
         <TextAreaField
-          label={noteRequired ? 'Note (required)' : 'Note (optional)'}
+          label={noteRequired ? t('med.noteReq') : t('med.noteOpt')}
           rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          hint={
-            status === 'skipped'
-              ? 'Why was it skipped? e.g. Patient fasting for surgery'
-              : undefined
-          }
+          hint={status === 'skipped' ? t('med.skipHint') : undefined}
         />
 
         {error && !tooSoon && (
           <Alert>
             {errorMessage(error, {
-              prescription_not_running:
-                'This prescription is not running anymore (stopped or ended).',
-              dose_unit_mismatch: 'The unit does not match the prescription.',
-              dose_differs_from_order:
-                'The dose differs from the order: add a note.',
+              prescription_not_running: t('med.notRunning'),
+              dose_unit_mismatch: t('med.unitMismatch'),
+              dose_differs_from_order: t('med.differs'),
             })}
           </Alert>
         )}
 
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             disabled={
@@ -170,7 +176,10 @@ export function RecordDoseDialog({
                 {
                   onSuccess: () => {
                     toast(
-                      `${rx.medication.name}: ${STATUS_LABEL[status].toLowerCase()}`,
+                      t('med.doseToast', {
+                        name: rx.medication.name,
+                        status: STATUS_LABEL[status].toLowerCase(),
+                      }),
                     );
                     onClose();
                   },
@@ -178,7 +187,7 @@ export function RecordDoseDialog({
               )
             }
           >
-            Save
+            {t('med.save')}
           </Button>
         </div>
       </div>
