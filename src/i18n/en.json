@@ -668,5 +668,60 @@
     "h": "{{n}} h ago",
     "days": "{{n}} days ago",
     "tomorrow": "tomorrow {{time}}"
+  },
+  "adm": {
+    "stay": "Hospital stay",
+    "admit": "Admit",
+    "move": "Move",
+    "discharge": "Discharge",
+    "waiting": "Sent to the hospital, waiting for a bed.",
+    "notAdmitted": "Not in hospital right now.",
+    "where": "{{ward}}, room {{room}}, bed {{bed}}",
+    "since": "Since {{at}} ({{ago}})",
+    "discharging": "Discharge in progress",
+    "step": {
+      "close_encounter": "Close the hospital visit",
+      "stop_medication": "Stop the medication"
+    },
+    "stepStatus": {
+      "waiting": "Waiting",
+      "pending": "Working…",
+      "done": "Done",
+      "failed": "Failed",
+      "timed_out": "No answer"
+    },
+    "retry": "Try again",
+    "abort": "Cancel discharge",
+    "retrying": "Trying again",
+    "aborted": "Discharge cancelled, patient stays",
+    "earlier": "Earlier stays",
+    "earlierRow": "{{from}} to {{to}}",
+    "dischargeTitle": "Discharge patient?",
+    "dischargeText": "This closes the hospital visit, stops the medication and frees the bed. It runs in steps; you can follow them here.",
+    "admitTitle": "Admit to a bed",
+    "moveTitle": "Move to another bed",
+    "ward": "Ward",
+    "chooseWard": "Choose a ward",
+    "bed": "Bed",
+    "chooseBed": "Choose a free bed",
+    "chooseBedErr": "Choose a bed",
+    "freeHint": "{{n}} free beds",
+    "bedLabel": "Room {{room}}, bed {{bed}}",
+    "reason": "Reason (optional)",
+    "reasonHint": "e.g. needs monitoring, isolation",
+    "admitted": "Patient admitted",
+    "moved": "Patient moved",
+    "errBedTaken": "Someone just took that bed. Choose another one.",
+    "errAlready": "The patient already has a bed.",
+    "errVisitClosed": "The hospital visit is closed.",
+    "errNotActive": "The stay changed meanwhile. Reload and try again."
+  },
+  "live": {
+    "connecting": "Connecting…",
+    "live": "Live",
+    "reconnecting": "Reconnecting…",
+    "connectingHint": "Opening live updates",
+    "liveHint": "Changes show up without reloading",
+    "reconnectingHint": "Connection lost, trying again"
   }
 }

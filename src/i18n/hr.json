@@ -668,5 +668,60 @@
     "h": "prije {{n}} h",
     "days": "prije {{n}} dana",
     "tomorrow": "sutra {{time}}"
+  },
+  "adm": {
+    "stay": "Boravak u bolnici",
+    "admit": "Primi",
+    "move": "Premjesti",
+    "discharge": "Otpusti",
+    "waiting": "Upućen u bolnicu, čeka krevet.",
+    "notAdmitted": "Trenutno nije u bolnici.",
+    "where": "{{ward}}, soba {{room}}, krevet {{bed}}",
+    "since": "Od {{at}} ({{ago}})",
+    "discharging": "Otpust u tijeku",
+    "step": {
+      "close_encounter": "Zatvaranje bolničkog posjeta",
+      "stop_medication": "Ukidanje terapije"
+    },
+    "stepStatus": {
+      "waiting": "Čeka",
+      "pending": "U tijeku…",
+      "done": "Gotovo",
+      "failed": "Nije uspjelo",
+      "timed_out": "Nema odgovora"
+    },
+    "retry": "Pokušaj ponovno",
+    "abort": "Odustani od otpusta",
+    "retrying": "Ponovni pokušaj",
+    "aborted": "Otpust otkazan, pacijent ostaje",
+    "earlier": "Raniji boravci",
+    "earlierRow": "{{from}} do {{to}}",
+    "dischargeTitle": "Otpustiti pacijenta?",
+    "dischargeText": "Zatvara se bolnički posjet, ukida terapija i oslobađa krevet. Ide u koracima koje možete pratiti ovdje.",
+    "admitTitle": "Primi na krevet",
+    "moveTitle": "Premjesti na drugi krevet",
+    "ward": "Odjel",
+    "chooseWard": "Odaberite odjel",
+    "bed": "Krevet",
+    "chooseBed": "Odaberite slobodan krevet",
+    "chooseBedErr": "Odaberite krevet",
+    "freeHint": "Slobodnih kreveta: {{n}}",
+    "bedLabel": "Soba {{room}}, krevet {{bed}}",
+    "reason": "Razlog (neobavezno)",
+    "reasonHint": "npr. treba nadzor, izolacija",
+    "admitted": "Pacijent primljen",
+    "moved": "Pacijent premješten",
+    "errBedTaken": "Netko je upravo zauzeo taj krevet. Odaberite drugi.",
+    "errAlready": "Pacijent već ima krevet.",
+    "errVisitClosed": "Bolnički posjet je zatvoren.",
+    "errNotActive": "Boravak se u međuvremenu promijenio. Osvježite i pokušajte ponovno."
+  },
+  "live": {
+    "connecting": "Spajanje…",
+    "live": "Uživo",
+    "reconnecting": "Ponovno spajanje…",
+    "connectingHint": "Otvaranje promjena uživo",
+    "liveHint": "Promjene se prikazuju bez osvježavanja",
+    "reconnectingHint": "Veza prekinuta, pokušavam ponovno"
   }
 }

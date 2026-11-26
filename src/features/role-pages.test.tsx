@@ -74,7 +74,10 @@ describe('nurse (Ivan Horvat)', () => {
 
   it('can filter his patients too', async () => {
     const { user } = renderApp('/patients', { as: 'nurse' });
-    await user.type(await screen.findByLabelText('Filter my patients'), 'vukovic');
+    await user.type(
+      await screen.findByLabelText('Filter my patients'),
+      'vukovic',
+    );
     expect(await screen.findByText('Vuković, Kata')).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(1 + 1);
   });

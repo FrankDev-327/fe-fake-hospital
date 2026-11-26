@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import { Button } from '@/components/Button';
+import { BedDialog } from '@/features/admissions/BedDialog';
 import { Badge, PageHeader, QueryState } from '@/components/ui';
 import { useMyPatients } from '@/features/patients/api';
 import type { PatientSummary } from '@/features/patients/api';
@@ -101,6 +103,7 @@ function BedGrid({
 }
 
 function BedCard({ bed, patient }: { bed: Bed; patient?: PatientSummary }) {
+  const [moving, setMoving] = useState(false);
   const tone =
     bed.state === 'free'
       ? 'border-emerald-200 bg-emerald-50'
@@ -128,10 +131,30 @@ function BedCard({ bed, patient }: { bed: Bed; patient?: PatientSummary }) {
           >
             {patientName(patient)}
           </Link>
-          {bed.since && (
-            <div className="text-xs text-slate-500">
-              {t('ward.admitted', { ago: timeAgo(bed.since) })}
-            </div>
+          <div className="flex items-center justify-between">
+            {bed.since && (
+              <span className="text-xs text-slate-500">
+                {t('ward.admitted', { ago: timeAgo(bed.since) })}
+              </span>
+            )}
+            {bed.admissionId && (
+              <Button
+                variant="ghost"
+                className="px-2 py-0.5 text-xs"
+                onClick={() => setMoving(true)}
+              >
+                {t('adm.move')}
+              </Button>
+            )}
+          </div>
+          {moving && bed.admissionId && (
+            <BedDialog
+              mode="transfer"
+              patientId={bed.patientId}
+              admissionId={bed.admissionId}
+              currentBedId={bed.bedId}
+              onClose={() => setMoving(false)}
+            />
           )}
         </div>
       )}

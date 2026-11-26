@@ -144,7 +144,7 @@ The fake backend has these already, marked `NOT IN THE BACKEND YET` in `src/mock
 ## 9. To do (everything left, in order)
 
 Frontend slices (on the fake backend first):
-- [ ] **Slice 7**: admit a patient to a bed, transfer, discharge (with retry/abort when the discharge gets stuck); live ward board with SSE (`EventSource`) so it updates without refreshing
+- [x] **Slice 7** (fake backend, 2026-11-26): "Hospital stay" card on the chart (Admit for an open hospital visit, Move, Discharge for doctors, discharge steps live with Try again / Cancel discharge when stuck, earlier stays), Move on the ward board, live updates over SSE (fetch-based, since EventSource can't send the token; reconnect 1 s → 30 s, reload everything after a reconnect, "Live" dot in the header). Fake: Cardiology + Neurology wards, ~45 generated patients in beds with visits and vitals, 3 waiting for a bed, 1 stuck discharge; the fake stream reaches other tabs through BroadcastChannel. Not done: births' delivery.changed push, mother/baby room moves (use Move). Backend gap #6: the stream only carries changes for MY patients, so other people's beds on the board still come from the 30 s poll (a ward-level `bed.changed` event would fix it)
 - [ ] **Slice 8**: documents: upload (presigned S3 URL, progress bar), document list, OCR findings review (accept/reject), import external lab results, print PDFs (prescription, lab report, discharge letter)
 - [ ] **Slice 9**: appointments: doctor's working hours, free slots, book / cancel / no-show / done
 - [ ] **Slice 10**: admin: staff name search, create/deactivate staff, doctor–patient and doctor–nurse assignments, handover, wards/rooms/beds; status page + "service down" banner (degraded mode)

@@ -4,6 +4,7 @@ import { navFor } from '@/app/nav';
 import { useAuth } from '@/auth/auth-context';
 import { Button } from '@/components/Button';
 import { LanguagePicker } from '@/i18n/LanguagePicker';
+import { LiveIndicator } from '@/features/live/LiveIndicator';
 import { displayName } from '@/lib/format';
 
 /** Sidebar + header around every logged-in page. <Outlet /> is where the current page goes. */
@@ -36,6 +37,9 @@ export function AppLayout() {
 
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-end gap-4 border-b border-slate-200 bg-white px-6 py-3">
+          {(user.role === 'doctor' || user.role === 'nurse') && (
+            <LiveIndicator />
+          )}
           <LanguagePicker />
           <div className="text-right text-sm">
             <div className="font-medium">{displayName(user)}</div>

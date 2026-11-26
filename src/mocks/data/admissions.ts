@@ -21,6 +21,8 @@ export const WARDS: FakeWard[] = [
   ward(3, 'DEL', 'Delivery', 'delivery'),
   ward(4, 'MAT', 'Maternity', 'maternity'),
   ward(5, 'NUR', 'Nursery', 'nursery'),
+  ward(6, 'CAR', 'Cardiology', 'general'),
+  ward(7, 'NEU', 'Neurology', 'general'),
 ];
 
 /** Wards a newborn's cot may be in (same as the backend's NEWBORN_WARDS) */
@@ -101,7 +103,58 @@ export const BEDS: FakeBed[] = [
   bed(NUR, 'N1', '2'),
   bed(NUR, 'N1', '3'),
   bed(NUR, 'N1', '4'),
+  ...moreBeds(),
 ];
+
+/**
+ * More rooms full of the generated patients (p20+): extra rooms on internal medicine and
+ * surgery, and two new wards. About 2 of 3 beds are taken.
+ */
+function moreBeds(): FakeBed[] {
+  const CAR = WARDS[5]!.id;
+  const NEU = WARDS[6]!.id;
+  const rooms: [string, string][] = [
+    [INT, '105'],
+    [INT, '106'],
+    [SUR, '204'],
+    [SUR, '205'],
+    [CAR, '501'],
+    [CAR, '502'],
+    [CAR, '503'],
+    [CAR, '504'],
+    [NEU, '601'],
+    [NEU, '602'],
+    [NEU, '603'],
+  ];
+  const out: FakeBed[] = [];
+  let g = 0; // next generated patient (index into the 60 generated ones)
+  let n = 20; // admission number
+  rooms.forEach(([wardId, room], r) =>
+    ['A', 'B', 'C'].forEach((code, i) => {
+      // every third bed stays free; skip the "waiting" patients (gen 20..22) and gen 1 later
+      const taken = (r + i) % 3 !== 2 && g < 40;
+      if (g === 20) g = 23; // gen 20-22: open hospital visit, waiting for a bed
+      out.push(
+        bed(
+          wardId,
+          room,
+          code,
+          taken
+            ? {
+                admissionId: fakeId(3500 + n++),
+                patientId: PATIENTS[14 + g++]!.id,
+                since: daysFromNow(-((g * 3) % 9) - 1, 8 + (g % 10)),
+              }
+            : null,
+        ),
+      );
+    }),
+  );
+  return out;
+}
+
+/** Generated patients who have an open hospital visit but no bed yet ("Admit" demo) */
+export const WAITING_FOR_BED = [20, 21, 22].map((g) => PATIENTS[14 + g]!.id);
 
 /** The seeded mothers' admissions (deliveries point at them) */
 export const LUCIJA_ADMISSION = fakeId(3508);

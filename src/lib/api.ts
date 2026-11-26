@@ -163,3 +163,21 @@ export async function api<T>(
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
+
+/**
+ * Opens a long response (the live SSE stream) with the access token, refreshing it once on
+ * 401 like api(). EventSource can't send the Authorization header, so it's plain fetch.
+ */
+export async function openStream(
+  path: string,
+  signal: AbortSignal,
+): Promise<Response> {
+  const go = () =>
+    send(path, {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      signal,
+    });
+  let res = await go();
+  if (res.status === 401 && (await refreshAccessToken())) res = await go();
+  return res;
+}

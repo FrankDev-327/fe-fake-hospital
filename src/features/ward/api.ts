@@ -35,5 +35,6 @@ export const useBedBoard = (wardId: string | undefined) =>
         signal,
       }),
     enabled: !!wardId,
-    refetchInterval: 30_000, // until live updates (SSE) come in slice 7
+    // my patients' changes come live (SSE); other people's patients only in this poll
+    refetchInterval: 30_000,
   });

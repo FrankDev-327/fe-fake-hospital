@@ -19,6 +19,7 @@ import { LabCard } from '@/features/lab/LabCard';
 import { useRelations } from '@/features/maternity/api';
 import { MedicationList } from '@/features/medication/MedicationList';
 import { VitalsCard } from '@/features/vitals/VitalsCard';
+import { StayCard } from '@/features/admissions/StayCard';
 import { ApiError } from '@/lib/api';
 import {
   age,
@@ -123,6 +124,7 @@ export function PatientPage() {
 
         {clinician && (
           <>
+            <StayCard patientId={p.id} canDischarge={role === 'doctor'} />
             <AllergiesCard patientId={p.id} />
             <MedicationCard patientId={p.id} patientLabel={patientName(p)} />
             <div className="lg:col-span-2">

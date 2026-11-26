@@ -1,4 +1,7 @@
-import { BEDS } from './data/admissions';
+import { BEDS, WAITING_FOR_BED } from './data/admissions';
+import { seedAdmissions } from './admissions-store';
+import type { FakeAdmission } from './admissions-store';
+import { live } from './live';
 import type { FakeBed } from './data/admissions';
 import {
   DELIVERIES,
@@ -46,6 +49,7 @@ interface Db {
   labResults: FakeLabResult[];
   criticalAcks: typeof CRITICAL_ACKS;
   beds: FakeBed[];
+  admissions: FakeAdmission[];
   deliveries: FakeDelivery[];
   relations: FakeRelation[];
   grants: FakeGrant[];
@@ -53,10 +57,10 @@ interface Db {
 
 const STORAGE_KEY = 'mock-api:db';
 // bump when the shape of Db or the seed changes, so old saved data is dropped
-const VERSION = 4;
+const VERSION = 5;
 
-const seed = (): Db =>
-  structuredClone({
+const seed = (): Db => {
+  const db: Db = structuredClone({
     patients: PATIENTS,
     contacts: CONTACTS,
     encounters: [...ENCOUNTERS, ...MATERNITY_ENCOUNTERS],
@@ -72,7 +76,12 @@ const seed = (): Db =>
     deliveries: DELIVERIES,
     relations: RELATIONS,
     grants: [],
+    admissions: [],
   });
+  // admissions + visits for everyone in a bed, waiting patients, extra vitals, a stuck discharge
+  seedAdmissions(db, WAITING_FOR_BED, PATIENTS[15]!.id);
+  return db;
+};
 
 function load(): Db {
   try {
@@ -97,6 +106,10 @@ export const mockDb = {
   /** Call after every change. */
   save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: VERSION, db }));
+  },
+  /** another tab saved changes: read them again */
+  reload() {
+    db = load();
   },
   reset() {
     db = seed();
@@ -137,3 +150,5 @@ export function accessiblePatientIds(staffId: string, role: string) {
     ]),
   ];
 }
+
+live.onRemoteChange(() => mockDb.reload());
