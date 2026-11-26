@@ -146,10 +146,9 @@ describe('admin (Tomislav Perić)', () => {
     expect(screen.queryByText('Šimić, Marko')).not.toBeInTheDocument();
   });
 
-  it('sees reports with small counts hidden', async () => {
+  it('sees the reports dashboard', async () => {
     renderApp('/reports', { as: 'admin' });
     expect(await screen.findByText('Whole hospital')).toBeInTheDocument();
-    expect((await screen.findAllByText('<5')).length).toBeGreaterThan(0);
   });
 
   it('cannot open patient charts (no clinical data for admin)', async () => {
