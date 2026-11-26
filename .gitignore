@@ -1,8 +1,10 @@
 node_modules
 dist
+dist-demo
 *.local
 .env
 .env.*
 !.env.development
+!.env.demo
 !.env.example
 coverage

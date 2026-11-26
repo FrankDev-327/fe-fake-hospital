@@ -21,8 +21,10 @@ const queryClient = new QueryClient({
 });
 
 // Fake backend: start it BEFORE the app makes its first request.
-// `import.meta.env.DEV &&` lets the production build drop this code (and MSW) completely.
-if (import.meta.env.DEV && MOCK_API) {
+// The production build drops this code (and MSW) completely. Only the "demo" build
+// (`pnpm build:demo`, used by the frontend load test) keeps it.
+const FAKE_ALLOWED = import.meta.env.DEV || import.meta.env.MODE === 'demo';
+if (FAKE_ALLOWED && MOCK_API) {
   const { worker } = await import('@/mocks/browser');
   await worker.start({ onUnhandledFrame: 'bypass', quiet: true });
 }

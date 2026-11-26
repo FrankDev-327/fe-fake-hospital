@@ -1,0 +1,41 @@
+fe-fake-hospital frontend load test, 2026-11-26 14:00-14:30 (k6 2.3.0 + k6/browser, Chromium 1140)
+Extracted from the dashboard report k6-fe-dashboard-2026-11-26T13-00-08.html (final cumulative values).
+k6's own end-of-test summary was not written: k6 hung after the last iteration and was stopped with Ctrl+C.
+
+browser_data_received            count=1.5523e+09 rate=8.536e+05/s
+browser_data_sent                count=9.77013e+06 rate=5372/s
+browser_http_req_duration        avg=255.2 max=1532 med=247.4 min=1.435 p90=419.9 p95=533.5 p99=869.3
+browser_http_req_failed          rate=6.64%
+browser_web_vital_cls            avg=0.01656 max=0.2566 med=4e-05 min=0 p90=0.04254 p95=0.09526 p99=0.2293
+browser_web_vital_fcp            avg=372.6 max=1704 med=355.7 min=173.2 p90=463.7 p95=548.6 p99=765
+browser_web_vital_inp            avg=49.4 max=424 med=40 min=16 p90=80 p95=88 p99=128
+browser_web_vital_lcp            avg=790.5 max=2168 med=718.4 min=473.5 p90=1191 p95=1463 p99=1752
+browser_web_vital_ttfb           avg=6.513 max=108.3 med=3.8 min=2.6 p90=13.1 p95=17.8 p99=38.54
+checks                           rate=100.00%
+data_received                    count=2.02271e+10 rate=1.112e+07/s
+data_sent                        count=7.48591e+06 rate=4116/s
+http_req_blocked                 avg=0.00877 max=6.168 med=0.00716 min=0.00094 p90=0.01223 p95=0.01482 p99=0.0387
+http_req_connecting              avg=0.0003 max=2.542 med=0 min=0 p90=0 p95=0 p99=0
+http_req_duration                avg=2.006 max=61.96 med=1.358 min=0.3632 p90=3.757 p95=5.268 p99=11.54
+http_req_failed                  rate=0.00%
+http_req_receiving               avg=0.7145 max=47.74 med=0.1042 min=0.01355 p90=2.078 p95=2.876 p99=7.382
+http_req_sending                 avg=0.01966 max=5.416 med=0.01796 min=0.00321 p90=0.03004 p95=0.03375 p99=0.04483
+http_req_tls_handshaking         avg=0 max=0 med=0 min=0 p90=0 p95=0 p99=0
+http_req_waiting                 avg=1.271 max=34.32 med=1.03 min=0.3264 p90=1.875 p95=2.888 p99=6.824
+http_reqs                        count=84301 rate=46.35/s
+iteration_duration               avg=666.5 max=2.825e+04 med=5.03 min=2.139 p90=13 p95=33.76 p99=1.928e+04
+iterations                       count=17686 rate=9.725/s
+ui_chart_open_ms                 avg=645.6 max=1143 med=647 min=354 p90=787 p95=813 p99=859
+ui_discharge_saga_ms             avg=5449 max=5743 med=5433 min=5157 p90=5631 p95=5646 p99=5698
+ui_login_ms                      avg=1445 max=2952 med=1441 min=994 p90=1651 p95=1708 p99=1955
+ui_move_bed_ms                   avg=592.8 max=1456 med=596 min=406 p90=707.9 p95=718.9 p99=776.2
+ui_next_page_ms                  avg=355.3 max=435 med=348 min=303 p90=397 p95=412.9 p99=430.6
+ui_patients_list_ms              avg=438.3 max=582 med=439 min=320 p90=472 p95=475.9 p99=500.8
+ui_reports_ms                    avg=1258 max=2000 med=1242 min=988 p90=1454 p95=1545 p99=1662
+ui_search_ms                     avg=165.5 max=788 med=12 min=6 p90=648.9 p95=724.9 p99=771
+ui_ward_board_ms                 avg=936.6 max=1721 med=930.5 min=636 p90=1091 p95=1151 p99=1239
+vus                              value=1
+vus_max                          value=17
+
+ui_flow_errors and ui_js_errors: no samples (0 failed flows, 0 JS errors).
+Times in ms (CLS has no unit).

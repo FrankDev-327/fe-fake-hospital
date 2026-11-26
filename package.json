@@ -12,7 +12,10 @@
     "lint": "eslint .",
     "format": "prettier --write src",
     "test": "vitest run",
-    "dev:backend": "VITE_API_MOCK=false vite"
+    "dev:backend": "VITE_API_MOCK=false vite",
+    "build:demo": "tsc -b && vite build --mode demo --outDir dist-demo",
+    "preview:demo": "vite preview --outDir dist-demo --port 4173 --strictPort",
+    "load-test": "bash load-tests/run.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.7",
