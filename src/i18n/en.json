@@ -102,6 +102,9 @@
     "invalid": "Some fields are not valid."
   },
   "patients": {
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {{page}} of {{pages}} ({{total}} patients)",
     "contacts": "Contacts",
     "noContacts": "No contacts.",
     "noContactsYet": "No contacts yet.",

@@ -157,3 +157,54 @@ export const MATERNITY_OBSERVATIONS: FakeObservation[] = (
     Date.parse(babyHorvat.bornAt!) + minutes * 60_000,
   ).toISOString(),
 }));
+
+/**
+ * Baby Horvat's first day: a reading every 2 hours, so the vitals chart has a newborn curve
+ * (weight drops a little after birth, which is normal; temperature settles; pulse and breathing calm down).
+ */
+const BABY_ROUNDS: [number, number, number, number, number, number][] = [
+  // hours after birth, weight kg, temp, pulse, resp rate, spo2
+  [0.5, 3.42, 36.6, 152, 56, 94],
+  [2, 3.41, 36.8, 148, 54, 96],
+  [4, 3.39, 36.9, 146, 52, 97],
+  [6, 3.38, 37.0, 144, 50, 97],
+  [8, 3.36, 36.9, 140, 48, 98],
+  [10, 3.35, 37.0, 142, 48, 98],
+  [12, 3.33, 37.1, 138, 46, 98],
+  [14, 3.32, 36.9, 136, 46, 99],
+  [16, 3.31, 37.0, 134, 44, 98],
+  [18, 3.3, 37.0, 135, 44, 99],
+];
+const vitalTypes = [
+  'weight',
+  'temperature',
+  'pulse',
+  'resp_rate',
+  'spo2',
+] as const;
+const units = {
+  weight: 'kg',
+  temperature: '°C',
+  pulse: '/min',
+  resp_rate: '/min',
+  spo2: '%',
+};
+let babyN = 0;
+for (const [h, ...values] of BABY_ROUNDS)
+  vitalTypes.forEach((type, i) =>
+    MATERNITY_OBSERVATIONS.push({
+      id: fakeId(6950 + babyN++),
+      patientId: babyHorvat.id,
+      encounterId: BABY_VISIT,
+      type,
+      value: values[i]!,
+      value2: null,
+      unit: units[type],
+      status: 'active',
+      errorReason: null,
+      recordedBy: NURSE_ID,
+      recordedAt: new Date(
+        Date.parse(babyHorvat.bornAt!) + h * 3_600_000,
+      ).toISOString(),
+    }),
+  );

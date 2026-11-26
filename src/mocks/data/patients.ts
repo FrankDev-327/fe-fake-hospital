@@ -95,14 +95,75 @@ export const PATIENTS: FakePatient[] = [
     address: null,
     bloodType: null,
   }),
+  ...extraPatients(),
 ];
+
+/** 60 more generated patients so the lists are long enough to page through */
+function extraPatients(): FakePatient[] {
+  const female = [
+    'Ivana',
+    'Petra',
+    'Marina',
+    'Ivona',
+    'Martina',
+    'Maja',
+    'Katarina',
+    'Jelena',
+    'Tea',
+    'Nina',
+  ];
+  const male = [
+    'Ivan',
+    'Marko',
+    'Luka',
+    'Tomislav',
+    'Ante',
+    'Mario',
+    'Hrvoje',
+    'Petar',
+    'Domagoj',
+    'Krešimir',
+  ];
+  const last = [
+    'Babić',
+    'Jurić',
+    'Novak',
+    'Kovač',
+    'Marić',
+    'Perić',
+    'Radić',
+    'Šarić',
+    'Lovrić',
+    'Klarić',
+    'Barišić',
+    'Vidović',
+  ];
+  return Array.from({ length: 60 }, (_, i) => {
+    const sex = i % 2 ? 'male' : 'female';
+    const first = (sex === 'male' ? male : female)[(i * 7) % 10]!;
+    const year = 1935 + ((i * 13) % 85);
+    const month = String((i % 12) + 1).padStart(2, '0');
+    const day = String((i % 27) + 1).padStart(2, '0');
+    return p(
+      20 + i,
+      first,
+      last[(i * 5) % last.length]!,
+      `${year}-${month}-${day}`,
+      sex,
+    );
+  });
+}
 
 /** doctor_patient: who is whose doctor right now */
 export const DOCTOR_PATIENTS: Record<string, string[]> = {
-  [DOCTOR_ID]: [...PATIENTS.slice(0, 6), ...PATIENTS.slice(12, 14)].map(
+  [DOCTOR_ID]: [
+    ...PATIENTS.slice(0, 6),
+    ...PATIENTS.slice(12, 14),
+    ...PATIENTS.slice(14, 54),
+  ].map((x) => x.id),
+  [OTHER_DOCTOR_ID]: [...PATIENTS.slice(6, 9), ...PATIENTS.slice(54)].map(
     (x) => x.id,
   ),
-  [OTHER_DOCTOR_ID]: PATIENTS.slice(6, 9).map((x) => x.id),
 };
 
 /** doctor_nurse: which doctors a nurse works for */

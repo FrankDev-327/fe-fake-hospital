@@ -53,7 +53,7 @@ interface Db {
 
 const STORAGE_KEY = 'mock-api:db';
 // bump when the shape of Db or the seed changes, so old saved data is dropped
-const VERSION = 3;
+const VERSION = 4;
 
 const seed = (): Db =>
   structuredClone({

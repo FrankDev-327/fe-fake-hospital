@@ -61,6 +61,12 @@ export function PatientPage() {
   const p = patient.data;
   return (
     <div className="space-y-6">
+      <Link
+        to="/patients"
+        className="inline-block text-sm text-teal-800 hover:underline"
+      >
+        ← {t('patients.backToPatients')}
+      </Link>
       <header className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-slate-200 bg-white px-5 py-4">
         <h1 className="text-2xl font-semibold">{patientName(p)}</h1>
         <span className="text-slate-600">

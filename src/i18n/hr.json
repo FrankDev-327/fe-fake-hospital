@@ -102,6 +102,9 @@
     "invalid": "Neka polja nisu ispravna."
   },
   "patients": {
+    "prevPage": "Prethodna",
+    "nextPage": "Sljedeća",
+    "pageOf": "Stranica {{page}} od {{pages}} ({{total}} pacijenata)",
     "contacts": "Kontakti",
     "noContacts": "Nema kontakata.",
     "noContactsYet": "Još nema kontakata.",

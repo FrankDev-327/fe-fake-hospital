@@ -12,7 +12,9 @@ describe('doctor (Dr. Ana Kovač)', () => {
   it('sees only her own patients', async () => {
     renderApp('/patients', { as: 'doctor' });
     expect(await screen.findByText('Matić, Josip')).toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(1 + 8); // header + 6 patients + mother and baby
+    // 6 patients + mother and baby + 40 generated ones, 15 per page
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 15);
+    expect(screen.getByText('Page 1 of 4 (48 patients)')).toBeInTheDocument();
     expect(screen.queryByText('Kovačević, Branko')).not.toBeInTheDocument();
   });
 
@@ -72,7 +74,7 @@ describe('nurse (Ivan Horvat)', () => {
 
   it('can filter his patients too', async () => {
     const { user } = renderApp('/patients', { as: 'nurse' });
-    await user.type(await screen.findByLabelText('Filter my patients'), 'kata');
+    await user.type(await screen.findByLabelText('Filter my patients'), 'vukovic');
     expect(await screen.findByText('Vuković, Kata')).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(1 + 1);
   });
