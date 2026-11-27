@@ -65,8 +65,7 @@ export const identityHandlers = [
   }),
 
   /**
-   * NOT IN THE BACKEND YET: the receptionist must pick a doctor to see their schedule, but
-   * GET /staff is admin only. Needs a small "doctors directory" endpoint (cards only).
+   * Doctors directory (cards only): the receptionist picks a doctor to see their schedule.
    */
   http.get('/api/identity/staff/doctors', async ({ request }) => {
     await delay();
@@ -78,8 +77,7 @@ export const identityHandlers = [
   }),
 
   /**
-   * NOT IN THE BACKEND YET: the birth form picks the nurses who helped, but GET /staff is
-   * admin only (same gap as the doctors directory above).
+   * Nurses directory (cards only): the birth form picks the nurses who helped.
    */
   http.get('/api/identity/staff/nurses', async ({ request }) => {
     await delay();

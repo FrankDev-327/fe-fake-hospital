@@ -39,6 +39,17 @@ export interface LiveChange {
   type: string;
   patientId?: string;
   id?: string;
+  /** bed.changed: the ward whose beds changed */
+  wardId?: string;
+}
+
+/** Stream URL: my patients + the ward boards on screen (either can be empty). */
+export function streamPath(patientIds: string[], wardIds: string[]) {
+  const q = new URLSearchParams();
+  if (patientIds.length) q.set('patients', patientIds.join(','));
+  if (wardIds.length) q.set('wards', wardIds.join(','));
+  const s = q.toString();
+  return s ? `/live/stream?${s}` : '/live/stream';
 }
 
 const wait = (ms: number, signal: AbortSignal) =>
@@ -57,6 +68,7 @@ const wait = (ms: number, signal: AbortSignal) =>
  */
 export async function connectLive(
   patientIds: string[],
+  wardIds: string[],
   handlers: {
     onChange: (change: LiveChange) => void;
     onStatus: (status: LiveStatus) => void;
@@ -68,10 +80,7 @@ export async function connectLive(
   let first = true;
   while (!signal.aborted) {
     try {
-      const res = await openStream(
-        `/live/stream?patients=${patientIds.join(',')}`,
-        signal,
-      );
+      const res = await openStream(streamPath(patientIds, wardIds), signal);
       if (!res.ok || !res.body) throw new Error(`stream ${res.status}`);
       handlers.onStatus('live');
       if (!first) handlers.onReconnect();

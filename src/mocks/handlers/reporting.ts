@@ -140,8 +140,7 @@ export const reportingHandlers = [
   }),
 
   /**
-   * NOT IN THE BACKEND YET: numbers PER DAY for the charts (the backend only has totals per
-   * period). Optional ?ward=CODE limits admissions/discharges/age groups to one ward.
+   * Numbers PER DAY for the charts. Optional ?ward=CODE limits admissions/discharges/age groups to one ward.
    */
   http.get('/api/reporting/reports/trends', async ({ request }) => {
     await delay();
@@ -181,7 +180,7 @@ export const reportingHandlers = [
     });
   }),
 
-  /** NOT IN THE BACKEND YET: the most given drugs in the period (doses given) */
+  /** The most given drugs in the period (doses given) */
   http.get('/api/reporting/reports/medication', async ({ request }) => {
     await delay();
     const p = period(request, ['admin', 'doctor']);

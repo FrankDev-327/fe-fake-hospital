@@ -83,10 +83,12 @@ function Schedule({ items }: { items: Appointment[] }) {
                   {formatTime(a.startsAt)}–{formatTime(a.endsAt)}
                 </span>
                 <span className="flex-1 font-medium">
-                  {patientName(a.patient)}
+                  {a.patient
+                    ? patientName(a.patient)
+                    : t('appointments.nameUnavailable')}
                 </span>
                 <span className="font-mono text-xs text-slate-500">
-                  {a.patient.mrn}
+                  {a.patient?.mrn}
                 </span>
                 <span className="w-28 text-slate-600">
                   {VISIT_LABEL[a.visitType]}

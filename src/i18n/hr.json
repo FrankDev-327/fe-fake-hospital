@@ -723,5 +723,8 @@
     "connectingHint": "Otvaranje promjena uživo",
     "liveHint": "Promjene se prikazuju bez osvježavanja",
     "reconnectingHint": "Veza prekinuta, pokušavam ponovno"
+  },
+  "appointments": {
+    "nameUnavailable": "Ime trenutno nije dostupno"
   }
 }

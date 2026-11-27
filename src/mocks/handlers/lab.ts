@@ -96,7 +96,7 @@ const patientOrder = (patientId: string, id: unknown) =>
   mockDb.get().labOrders.find((o) => o.id === id && o.patientId === patientId);
 
 export const labHandlers = [
-  /** NOT IN THE BACKEND YET: the test catalog for the order form and names everywhere */
+  /** The test catalog for the order form and names everywhere */
   http.get('/api/clinical/lab-tests', async ({ request }) => {
     await delay();
     const staff = guard(request);

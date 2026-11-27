@@ -218,7 +218,7 @@ export interface NurseCard {
   lastName: string;
 }
 
-/** NOT IN THE BACKEND YET (mocked): nurses directory for the birth team picker */
+/** Active nurses (cards) for the birth team picker */
 export const useNurses = () =>
   useQuery({
     queryKey: ['staff', 'nurses'],

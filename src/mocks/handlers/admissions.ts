@@ -420,8 +420,8 @@ export const admissionsHandlers = [
           .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
           .map(({ doctorId: _, ...a }) => {
             const p = patientById(a.patientId)!;
-            // NOT IN THE BACKEND YET: a schedule without names is useless at the desk, and a
-            // doctor can't look up patients not assigned to them. Backend should add this.
+            // names come from the patients service (a doctor can't look up first-visit patients
+            // not assigned to them yet)
             return {
               ...a,
               patient: {

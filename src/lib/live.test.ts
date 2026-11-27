@@ -20,3 +20,14 @@ describe('parseSse', () => {
     expect(second.messages).toEqual([{ event: 'change', data: '{"x":1}' }]);
   });
 });
+
+describe('streamPath', () => {
+  it('sends patients and ward boards, and works with neither', async () => {
+    const { streamPath } = await import('./live');
+    expect(streamPath(['p1', 'p2'], ['w1'])).toBe(
+      '/live/stream?patients=p1%2Cp2&wards=w1',
+    );
+    expect(streamPath([], ['w1'])).toBe('/live/stream?wards=w1');
+    expect(streamPath([], [])).toBe('/live/stream');
+  });
+});

@@ -10,8 +10,11 @@ export interface Appointment {
   endsAt: string;
   visitType: 'first_visit' | 'follow_up' | 'procedure' | 'consultation';
   status: 'booked' | 'cancelled' | 'completed' | 'no_show';
-  /** NOT IN THE BACKEND YET (see docs/plan.md "Backend gaps") */
-  patient: { mrn: string; firstName: string; lastName: string };
+  /**
+   * From the patients service. null when it couldn't be reached (the list still shows the
+   * times); firstName null for a newborn without a name yet.
+   */
+  patient: { mrn: string; firstName: string | null; lastName: string } | null;
 }
 
 export interface DoctorCard {
@@ -83,7 +86,7 @@ export const useSchedule = (
     enabled: !!doctorId,
   });
 
-/** NOT IN THE BACKEND YET: list of doctors for the front desk */
+/** Active doctors (cards) for the front desk's doctor picker */
 export const useDoctors = (enabled = true) =>
   useQuery({
     queryKey: ['staff', 'doctors'],

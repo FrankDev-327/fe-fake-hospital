@@ -153,7 +153,7 @@ Frontend slices (on the fake backend first):
 
 Then the switch to the real backend:
 - [ ] Commit and push the backend's refresh-cookie change (in `fake-hospital`, still uncommitted)
-- [ ] Add the 3 missing endpoints to the backend (section 7: doctors directory, patient names in schedules, lab test catalog)
+- [x] Backend gaps of section 7 added in `fake-hospital` (2026-11-27, compiled, NOT run yet): doctors + nurses directory, patient names in schedules (`patient` + `patientNamesAvailable`), lab test catalog, reports trends + medication (trends also returns `ageGroupUnknown`, medication drugs also have `medicationId` + `atcCode`), gap #6: live stream takes `&wards=<id>,<id>` and pushes `{ type: 'bed.changed', wardId }`. Frontend side done too (2026-11-27): ward boards follow `wards=` and reload on `bed.changed`; receptionists and admin also open the stream (appointment changes, ward boards); schedule rows handle `patient: null`; gap notes removed
 - [ ] Run the backend in Docker (ask first) and the app with `pnpm dev:backend`; fix every difference from the fake
 
 Quality and shipping (slice 11):

@@ -6,6 +6,7 @@ import { Badge, PageHeader, QueryState } from '@/components/ui';
 import { useMyPatients } from '@/features/patients/api';
 import type { PatientSummary } from '@/features/patients/api';
 import { patientName, timeAgo } from '@/lib/format';
+import { useFollowWard } from '@/lib/live-wards';
 import { useBedBoard, useWards } from './api';
 import type { Bed } from './api';
 import { t } from '@/i18n';
@@ -15,6 +16,8 @@ export function WardPage() {
   const [picked, setPicked] = useState<string>();
   const wardId = picked ?? wards.data?.[0]?.id;
   const board = useBedBoard(wardId);
+  // bed changes on this ward come live (bed.changed), for everyone's patients
+  useFollowWard(wardId);
   // the board only has patient ids; names come from "my patients" (already cached)
   const mine = useMyPatients();
   const byId = new Map(mine.data?.map((p) => [p.id, p]));

@@ -143,7 +143,7 @@ export const rangeText = (t: {
     ? ''
     : `${t.refLow ?? ''}–${t.refHigh ?? ''}`;
 
-/** NOT IN THE BACKEND YET (see docs/plan.md "Backend gaps"): the test catalog */
+/** The lab test catalog (GET /clinical/lab-tests) */
 export const useLabTests = () =>
   useQuery({
     queryKey: ['lab-tests'],

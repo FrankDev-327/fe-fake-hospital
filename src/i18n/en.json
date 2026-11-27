@@ -723,5 +723,8 @@
     "connectingHint": "Opening live updates",
     "liveHint": "Changes show up without reloading",
     "reconnectingHint": "Connection lost, trying again"
+  },
+  "appointments": {
+    "nameUnavailable": "Name unavailable right now"
   }
 }

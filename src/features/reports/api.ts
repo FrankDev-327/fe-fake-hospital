@@ -73,14 +73,14 @@ export const useOccupancy = () =>
       api<Occupancy>('/reporting/reports/occupancy', { signal }),
   });
 
-/** NOT IN THE BACKEND YET (mocked): numbers per day */
+/** Numbers per day for the charts (GET /reporting/reports/trends) */
 export const useTrends = (p: Period, ward: string, enabled = true) =>
   useReport<Trends>('trends', p, ward ? `&ward=${ward}` : '', enabled);
 
 export const useAdmissionFlow = (p: Period) =>
   useReport<AdmissionFlow>('admissions', p);
 
-/** NOT IN THE BACKEND YET (mocked): most given drugs */
+/** Top 10 drugs by doses given (GET /reporting/reports/medication) */
 export const useTopMedication = (p: Period) =>
   useReport<{ drugs: { name: string; dosesGiven: number }[] }>('medication', p);
 
